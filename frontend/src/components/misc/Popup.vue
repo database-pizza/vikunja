@@ -125,7 +125,7 @@ onClickOutside(popup, (event) => {
 })
 
 onKeyStroke('Escape', event => {
-	// defaultPrevented means an inner control (flatpickr, Multiselect, …) already consumed this Escape.
+	// defaultPrevented means an inner control (Multiselect, …) already consumed this Escape.
 	if (!openValue.value || event.defaultPrevented) {
 		return
 	}
