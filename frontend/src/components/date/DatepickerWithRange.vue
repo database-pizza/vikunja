@@ -155,8 +155,9 @@ function pickDay(day: Date) {
 
 	const [start, end] = day < pendingStart.value ? [day, pendingStart.value] : [pendingStart.value, day]
 	pendingStart.value = null
-	from.value = formatDate(start, 'YYYY-MM-DD HH:mm')
-	to.value = formatDate(end, 'YYYY-MM-DD HH:mm')
+	// Inclusive end: a range ending "Sep 22" should cover the whole 22nd.
+	from.value = formatDate(start, 'YYYY-MM-DD 00:00')
+	to.value = formatDate(end, 'YYYY-MM-DD 23:59')
 }
 
 function setDateRange(range: string[] | null) {
