@@ -230,6 +230,8 @@ function onKeydown(event: KeyboardEvent) {
 <style lang="scss" scoped>
 .calendar-month {
 	--calendar-day-size: 2.125rem;
+	// Translucent so the span reads on both light and dark backgrounds (--primary-light is near-white in dark mode).
+	--calendar-range-bg: hsla(var(--primary-hsl), .15);
 	inline-size: 100%;
 	user-select: none;
 
@@ -292,15 +294,15 @@ function onKeydown(event: KeyboardEvent) {
 	block-size: calc(var(--calendar-day-size) + .375rem);
 
 	&.is-in-range {
-		background: var(--primary-light);
+		background: var(--calendar-range-bg);
 	}
 
 	&.is-range-start {
-		background: linear-gradient(to right, transparent 50%, var(--primary-light) 50%);
+		background: linear-gradient(to right, transparent 50%, var(--calendar-range-bg) 50%);
 	}
 
 	&.is-range-end {
-		background: linear-gradient(to left, transparent 50%, var(--primary-light) 50%);
+		background: linear-gradient(to left, transparent 50%, var(--calendar-range-bg) 50%);
 	}
 }
 

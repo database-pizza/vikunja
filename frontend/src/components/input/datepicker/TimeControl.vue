@@ -260,7 +260,7 @@ function formatPreset(hours: number) {
 
 	&.is-active {
 		border-color: var(--primary);
-		background: var(--primary-light);
+		background: hsla(var(--primary-hsl), .15);
 		color: var(--primary);
 	}
 }
