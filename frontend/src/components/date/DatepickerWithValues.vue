@@ -26,30 +26,19 @@
 							{{ $t(`input.datepickerRange.values.${text}`) }}
 						</BaseButton>
 					</div>
-					<div class="flatpickr-container input-group">
+					<div class="calendar-container input-group">
 						<label class="label">
 							{{ $t('input.datepickerRange.date') }}
-							<div class="field has-addons">
-								<div class="control is-fullwidth">
-									<input
-										v-model="date"
-										class="input"
-										type="text"
-									>
-								</div>
-								<div class="control">
-									<XButton
-										icon="calendar"
-										variant="secondary"
-										:aria-label="$t('input.datepickerRange.openCalendar')"
-										data-toggle
-									/>
-								</div>
-							</div>
+							<input
+								v-model="date"
+								class="input"
+								type="text"
+							>
 						</label>
-						<flat-pickr
-							v-model="flatpickrDate"
-							:config="flatPickerConfig"
+
+						<CalendarMonth
+							:selected="selectedDate"
+							@pick="pickDay"
 						/>
 
 						<p>
@@ -80,18 +69,16 @@
 
 <script lang="ts" setup>
 import {computed, ref, watch} from 'vue'
-import {useI18n} from 'vue-i18n'
 
-import flatPickr from 'vue-flatpickr-component'
-import 'flatpickr/dist/flatpickr.css'
 import {parseDateOrString} from '@/helpers/time/parseDateOrString'
 import {toISOStringOrNull} from '@/helpers/time/toISOStringOrNull'
+import {formatDate} from '@/helpers/time/formatDate'
 
 import Popup from '@/components/misc/Popup.vue'
+import CalendarMonth from '@/components/input/datepicker/CalendarMonth.vue'
 import {DATE_VALUES} from '@/components/date/dateRanges'
 import BaseButton from '@/components/base/BaseButton.vue'
 import DatemathHelp from '@/components/date/DatemathHelp.vue'
-import {useFlatpickrLanguage} from '@/helpers/useFlatpickrLanguage'
 
 const props = withDefaults(defineProps<{
 	modelValue: string | Date | null,
@@ -107,20 +94,7 @@ const emit = defineEmits<{
 	'update:open': [open: boolean],
 }>()
 
-const {t} = useI18n({useScope: 'global'})
-
-const flatPickerConfig = computed(() => ({
-	altFormat: t('date.altFormatLong'),
-	altInput: true,
-	dateFormat: 'Y-m-d H:i',
-	enableTime: false,
-	wrap: true,
-	locale: useFlatpickrLanguage().value,
-}))
-
 const showHowItWorks = ref(false)
-
-const flatpickrDate = ref('')
 
 const date = ref<string|Date|null>('')
 
@@ -128,33 +102,24 @@ watch(
 	() => props.modelValue,
 	newValue => {
 		date.value = newValue
-		// Only set the date back to flatpickr when it's an actual date.
-		// Otherwise flatpickr runs in an endless loop and slows down the browser.
-		const dateValueAsString = date.value instanceof Date ? toISOStringOrNull(date.value) : date.value
-		const parsed = parseDateOrString(dateValueAsString, false)
-		if (parsed instanceof Date) {
-			flatpickrDate.value = dateValueAsString ?? ''
-		}
 	},
 )
+
+const selectedDate = computed<Date | null>(() => {
+	const raw = date.value instanceof Date ? toISOStringOrNull(date.value) : date.value
+	const parsed = parseDateOrString(raw, null)
+	return parsed instanceof Date ? parsed : null
+})
 
 function emitChanged() {
 	emit('update:modelValue', date.value === '' ? null : date.value)
 }
 
-watch(
-	() => flatpickrDate.value,
-	(newVal: string | null) => {
-		if (newVal === null) {
-			return
-		}
-
-		date.value = newVal
-
-		emitChanged()
-	},
-)
 watch(() => date.value, emitChanged)
+
+function pickDay(day: Date) {
+	date.value = formatDate(day, 'YYYY-MM-DD HH:mm')
+}
 
 function setDate(range: string | null) {
 	if (range === null) {
@@ -185,47 +150,28 @@ const customRangeActive = computed<boolean>(() => {
 	box-shadow: $shadow;
 
 	&.is-open {
-		inline-size: 500px;
-		block-size: 320px;
+		inline-size: 560px;
+		max-inline-size: calc(100vw - 2rem);
 	}
 }
 
 .datepicker-with-range {
 	display: flex;
 	inline-size: 100%;
-	block-size: 100%;
-	position: absolute;
 }
 
-:deep(.flatpickr-calendar) {
-	margin: 0 auto 8px;
-	box-shadow: none;
-}
-
-.flatpickr-container {
+.calendar-container {
 	inline-size: 70%;
 	border-inline-start: 1px solid var(--grey-200);
 	padding: 1rem;
 	font-size: .9rem;
 
-	// Flatpickr has no option to use it without an input field so we're hiding it instead
-	:deep(input.form-control.input) {
-		block-size: 0;
-		padding: 0;
-		border: 0;
-	}
-
-	.field .control :deep(.button) {
-		border: 1px solid var(--input-border-color);
-		block-size: 2.25rem;
-
-		&:hover {
-			border: 1px solid var(--input-hover-border-color);
-		}
-	}
-
-	.label, .input, :deep(.button) {
+	.label, .input {
 		font-size: .9rem;
+	}
+
+	> .label {
+		margin-block-end: .5rem;
 	}
 }
 
@@ -234,7 +180,8 @@ const customRangeActive = computed<boolean>(() => {
 	display: flex;
 	flex-direction: column;
 	padding-block-start: .5rem;
-	overflow-y: scroll;
+	overflow-y: auto;
+	max-block-size: 30rem;
 
 	button {
 		display: block;

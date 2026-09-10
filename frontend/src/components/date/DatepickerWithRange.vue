@@ -29,50 +29,31 @@
 							{{ $t(`input.datepickerRange.ranges.${text}`) }}
 						</BaseButton>
 					</div>
-					<div class="flatpickr-container input-group">
-						<label class="label">
-							{{ $t('input.datepickerRange.from') }}
-							<div class="field has-addons">
-								<div class="control is-fullwidth">
-									<input
-										v-model="from"
-										class="input"
-										type="text"
-									>
-								</div>
-								<div class="control">
-									<XButton
-										icon="calendar"
-										variant="secondary"
-										:aria-label="$t('input.datepickerRange.openCalendar')"
-										data-toggle
-									/>
-								</div>
-							</div>
-						</label>
-						<label class="label">
-							{{ $t('input.datepickerRange.to') }}
-							<div class="field has-addons">
-								<div class="control is-fullwidth">
-									<input
-										v-model="to"
-										class="input"
-										type="text"
-									>
-								</div>
-								<div class="control">
-									<XButton
-										icon="calendar"
-										variant="secondary"
-										:aria-label="$t('input.datepickerRange.openCalendar')"
-										data-toggle
-									/>
-								</div>
-							</div>
-						</label>
-						<flat-pickr
-							v-model="flatpickrRange"
-							:config="flatPickerConfig"
+					<div class="calendar-container input-group">
+						<div class="date-fields">
+							<label class="label">
+								{{ $t('input.datepickerRange.from') }}
+								<input
+									v-model="from"
+									class="input"
+									type="text"
+								>
+							</label>
+							<label class="label">
+								{{ $t('input.datepickerRange.to') }}
+								<input
+									v-model="to"
+									class="input"
+									type="text"
+								>
+							</label>
+						</div>
+
+						<CalendarMonth
+							mode="range"
+							:range-start="rangeStart"
+							:range-end="rangeEnd"
+							@pick="pickDay"
 						/>
 
 						<p>
@@ -105,15 +86,14 @@
 import {computed, ref, watch} from 'vue'
 import {useI18n} from 'vue-i18n'
 
-import flatPickr from 'vue-flatpickr-component'
-import 'flatpickr/dist/flatpickr.css'
 import {parseDateOrString} from '@/helpers/time/parseDateOrString'
+import {formatDate} from '@/helpers/time/formatDate'
 
 import Popup from '@/components/misc/Popup.vue'
+import CalendarMonth from '@/components/input/datepicker/CalendarMonth.vue'
 import {DATE_RANGES} from '@/components/date/dateRanges'
 import BaseButton from '@/components/base/BaseButton.vue'
 import DatemathHelp from '@/components/date/DatemathHelp.vue'
-import {useFlatpickrLanguage} from '@/helpers/useFlatpickrLanguage'
 
 const props = defineProps<{
 	// null for a side that's been cleared (the Custom option) — emitted, so accepted too.
@@ -132,19 +112,7 @@ const emit = defineEmits<{
 
 const {t} = useI18n({useScope: 'global'})
 
-const flatPickerConfig = computed(() => ({
-	altFormat: t('date.altFormatLong'),
-	altInput: true,
-	dateFormat: 'Y-m-d H:i',
-	enableTime: false,
-	wrap: true,
-	mode: 'range' as const,
-	locale: useFlatpickrLanguage().value,
-}))
-
 const showHowItWorks = ref(false)
-
-const flatpickrRange = ref('')
 
 const from = ref('')
 const to = ref('')
@@ -154,13 +122,6 @@ watch(
 	newValue => {
 		from.value = typeof newValue.dateFrom === 'string' ? newValue.dateFrom : (newValue.dateFrom?.toISOString() ?? '')
 		to.value = typeof newValue.dateTo === 'string' ? newValue.dateTo : (newValue.dateTo?.toISOString() ?? '')
-		// Only set the date back to flatpickr when it's an actual date.
-		// Otherwise flatpickr runs in an endless loop and slows down the browser.
-		const dateFrom = parseDateOrString(from.value, false)
-		const dateTo = parseDateOrString(to.value, false)
-		if (dateFrom instanceof Date && dateTo instanceof Date) {
-			flatpickrRange.value = `${from.value} to ${to.value}`
-		}
 	},
 )
 
@@ -172,29 +133,34 @@ function emitChanged() {
 	emit('update:modelValue', args)
 }
 
-watch(
-	() => flatpickrRange.value,
-	(newVal: string | null) => {
-		if (newVal === null) {
-			return
-		}
-
-		const [fromDate, toDate] = newVal.split(' to ')
-
-		if (typeof fromDate === 'undefined' || typeof toDate === 'undefined') {
-			return
-		}
-
-		from.value = fromDate
-		to.value = toDate
-
-		emitChanged()
-	},
-)
 watch(() => from.value, emitChanged)
 watch(() => to.value, emitChanged)
 
+function asDate(value: string): Date | null {
+	const parsed = parseDateOrString(value, null)
+	return parsed instanceof Date ? parsed : null
+}
+
+// Only the first click of a new range; the model is untouched until the end is picked too.
+const pendingStart = ref<Date | null>(null)
+
+const rangeStart = computed(() => pendingStart.value ?? asDate(from.value))
+const rangeEnd = computed(() => pendingStart.value ? null : asDate(to.value))
+
+function pickDay(day: Date) {
+	if (pendingStart.value === null) {
+		pendingStart.value = day
+		return
+	}
+
+	const [start, end] = day < pendingStart.value ? [day, pendingStart.value] : [pendingStart.value, day]
+	pendingStart.value = null
+	from.value = formatDate(start, 'YYYY-MM-DD HH:mm')
+	to.value = formatDate(end, 'YYYY-MM-DD HH:mm')
+}
+
 function setDateRange(range: string[] | null) {
+	pendingStart.value = null
 	if (range === null) {
 		from.value = ''
 		to.value = ''
@@ -244,47 +210,34 @@ const buttonText = computed<string>(() => {
 	box-shadow: $shadow;
 
 	&.is-open {
-		inline-size: 500px;
-		block-size: 320px;
+		inline-size: 560px;
+		max-inline-size: calc(100vw - 2rem);
 	}
 }
 
 .datepicker-with-range {
 	display: flex;
 	inline-size: 100%;
-	block-size: 100%;
-	position: absolute;
 }
 
-:deep(.flatpickr-calendar) {
-	margin: 0 auto 8px;
-	box-shadow: none;
-}
-
-.flatpickr-container {
+.calendar-container {
 	inline-size: 70%;
 	border-inline-start: 1px solid var(--grey-200);
 	padding: 1rem;
 	font-size: .9rem;
 
-	// Flatpickr has no option to use it without an input field so we're hiding it instead
-	:deep(input.form-control.input) {
-		block-size: 0;
-		padding: 0;
-		border: 0;
-	}
-
-	.field .control :deep(.button) {
-		border: 1px solid var(--input-border-color);
-		block-size: 2.25rem;
-
-		&:hover {
-			border: 1px solid var(--input-hover-border-color);
-		}
-	}
-
-	.label, .input, :deep(.button) {
+	.label, .input {
 		font-size: .9rem;
+	}
+}
+
+.date-fields {
+	display: flex;
+	gap: .5rem;
+	margin-block-end: .5rem;
+
+	.label {
+		flex: 1;
 	}
 }
 
@@ -293,7 +246,8 @@ const buttonText = computed<string>(() => {
 	display: flex;
 	flex-direction: column;
 	padding-block-start: .5rem;
-	overflow-y: scroll;
+	overflow-y: auto;
+	max-block-size: 30rem;
 
 	button {
 		display: block;
