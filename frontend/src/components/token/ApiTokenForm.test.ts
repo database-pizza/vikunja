@@ -33,7 +33,7 @@ function mountForm({stubDatePicker = true} = {}) {
 		XButton: {template: '<button v-bind="$attrs"><slot /></button>'},
 	}
 	if (stubDatePicker) {
-		stubs.flatPickr = true
+		stubs.Datepicker = true
 	}
 	const wrapper = mount(ApiTokenForm, {
 		global: {
@@ -110,11 +110,11 @@ describe('ApiTokenForm', () => {
 		for (let i = 0; i < 3; i++) {
 			await expiry.setValue('custom')
 			await flushPromises()
-			expect(wrapper.find('input[readonly]').exists()).toBe(true)
+			expect(wrapper.find('.datepicker').exists()).toBe(true)
 
 			await expiry.setValue('30')
 			await flushPromises()
-			expect(wrapper.find('input[readonly]').exists()).toBe(false)
+			expect(wrapper.find('.datepicker').exists()).toBe(false)
 		}
 
 		expect(mounted.errors).toEqual([])

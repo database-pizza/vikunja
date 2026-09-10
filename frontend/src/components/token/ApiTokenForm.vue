@@ -1,19 +1,13 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue'
-import {useFlatpickrLanguage} from '@/helpers/useFlatpickrLanguage'
+import {onMounted, ref} from 'vue'
 import XButton from '@/components/input/Button.vue'
 import ApiTokenService from '@/services/apiToken'
 import ApiTokenModel from '@/models/apiTokenModel'
 import FancyCheckbox from '@/components/input/FancyCheckbox.vue'
 import {MILLISECONDS_A_DAY} from '@/constants/date'
-import flatPickr from 'vue-flatpickr-component'
-import type {Hook} from 'flatpickr/dist/types/options'
-import 'flatpickr/dist/flatpickr.css'
-import {useI18n} from 'vue-i18n'
+import Datepicker from '@/components/input/Datepicker.vue'
 import FormField from '@/components/input/FormField.vue'
 import type {IApiToken} from '@/modelTypes/IApiToken'
-import {useTimeFormat} from '@/composables/useTimeFormat'
-import {TIME_FORMAT} from '@/constants/timeFormat'
 
 const props = withDefaults(defineProps<{
 	ownerId?: number,
@@ -33,13 +27,7 @@ const emit = defineEmits<{
 }>()
 
 const service = new ApiTokenService()
-const {t} = useI18n()
-const {store: timeFormat} = useTimeFormat()
-const flatpickrLocale = useFlatpickrLanguage()
-// Zero seconds: flatpickr copies them into the native mobile input's default value where they
-// become the step base, making every minute-granularity pick a stepMismatch that blocks submit (#3175)
 const now = new Date()
-now.setSeconds(0, 0)
 
 const availableRoutes = ref(null)
 const newToken = ref<IApiToken>(new ApiTokenModel())
@@ -101,23 +89,6 @@ const presets: TokenPreset[] = [
 	},
 ]
 
-// altInput (or mobileInput on the mobile path) is a fresh element inheriting no attributes from the
-// input we render, so label it here
-const labelDateInput: Hook = (_dates, _str, instance) => {
-	const input = instance.mobileInput ?? instance.altInput
-	input?.setAttribute('aria-label', t('user.settings.apiTokens.attributes.expiresAt'))
-}
-
-const flatPickerConfig = computed(() => ({
-	altFormat: t('date.altFormatLong'),
-	altInput: true,
-	dateFormat: 'Y-m-d H:i',
-	enableTime: true,
-	time_24hr: timeFormat.value === TIME_FORMAT.HOURS_24,
-	locale: flatpickrLocale.value,
-	minDate: now,
-	onReady: labelDateInput,
-}))
 
 onMounted(async () => {
 	const allRoutes = await service.getAvailableRoutes()
@@ -332,16 +303,15 @@ async function createToken() {
 						</option>
 					</select>
 				</div>
-				<!-- flatpickr's altInput is a sibling Vue doesn't own. Without this wrapper
-				     Vue anchors the v-if placeholder on it, and flatpickr's destroy hook has
-				     already removed it by then, so the patch throws (FRONTEND-OSS-2AR). -->
 				<div
 					v-if="newTokenExpiry === 'custom'"
 					class="control mis-2"
 				>
-					<flat-pickr
+					<Datepicker
 						v-model="newTokenExpiryCustom"
-						:config="flatPickerConfig"
+						:choose-date-label="$t('user.settings.apiTokens.attributes.expiresAt')"
+						:show-shortcuts="false"
+						:min-date="now"
 					/>
 				</div>
 			</div>
