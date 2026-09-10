@@ -1,6 +1,11 @@
 <template>
 	<div>
-		<Popup @update:open="showFormSwitch = null">
+		<Popup
+			placement="bottom-start"
+			sheet-on-mobile
+			:sheet-title="$t('task.attributes.reminders')"
+			@update:open="showFormSwitch = null"
+		>
 			<template #trigger="{toggle}">
 				<SimpleButton
 					v-tooltip="reminder.reminder && reminder.relativeTo !== null ? formatDisplayDate(reminder.reminder) : null"
@@ -55,6 +60,7 @@
 						v-else-if="activeForm === 'absolute'"
 						v-model="reminderDate"
 						shortcuts-layout="top"
+						:large="isMobile"
 					/>
 
 					<XButton
@@ -77,6 +83,8 @@ import {computed, ref, watch} from 'vue'
 import {SECONDS_A_DAY, SECONDS_A_HOUR} from '@/constants/date'
 import {type IReminderPeriodRelativeTo, REMINDER_PERIOD_RELATIVE_TO_TYPES} from '@/types/IReminderPeriodRelativeTo'
 import {useI18n} from 'vue-i18n'
+
+import {useIsMobile} from '@/composables/useIsMobile'
 
 import {type PeriodUnit, secondsToPeriod} from '@/helpers/time/period'
 import type {ITaskReminder} from '@/modelTypes/ITaskReminder'
@@ -120,6 +128,7 @@ const presets = computed(() => [
 ] as ITaskReminder[])
 const reminderDate = ref<Date | null>(null)
 
+const isMobile = useIsMobile()
 const showFormSwitch = ref<null | 'relative' | 'absolute'>(null)
 
 const activeForm = computed(() => {
@@ -277,16 +286,15 @@ function translateUnit(amount: number, unit: PeriodUnit): string {
 	align-items: flex-start;
 }
 
-:deep(.popup) {
-	inset-block-start: unset;
-}
-
 .reminder-options-popup {
 	inline-size: 310px;
 	z-index: 99;
 
-	@media screen and (max-width: ($tablet)) {
-		inline-size: calc(100vw - 5rem);
+	.bottom-sheet & {
+		inline-size: 100%;
+		border: 0;
+		box-shadow: none;
+		border-radius: 0;
 	}
 
 	.option-button {
