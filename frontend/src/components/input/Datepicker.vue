@@ -12,91 +12,87 @@
 			</template>
 		</SimpleButton>
 
-		<Teleport
-			to="body"
-			:disabled="!isMobile"
-		>
-			<CustomTransition name="fade">
+		<!-- No Teleport: the task modal is a top-layer <dialog>, anything moved to body would sit beneath it. -->
+		<CustomTransition name="fade">
+			<div
+				v-if="show"
+				class="datepicker-layer"
+				:class="{'is-sheet': isMobile}"
+			>
 				<div
-					v-if="show"
-					class="datepicker-layer"
-					:class="{'is-sheet': isMobile}"
+					v-if="isMobile"
+					class="datepicker-scrim"
+				/>
+				<div
+					ref="datepickerPopup"
+					class="datepicker-popup"
+					:class="`datepicker-popup--${layout}`"
+					role="dialog"
+					:aria-label="chooseDateLabel"
+					tabindex="-1"
+					@keydown.esc.stop="closeViaEsc"
 				>
 					<div
 						v-if="isMobile"
-						class="datepicker-scrim"
-					/>
-					<div
-						ref="datepickerPopup"
-						class="datepicker-popup"
-						:class="`datepicker-popup--${layout}`"
-						role="dialog"
-						:aria-label="chooseDateLabel"
-						tabindex="-1"
-						@keydown.esc.stop="closeViaEsc"
+						class="datepicker-popup__sheet-header"
 					>
-						<div
-							v-if="isMobile"
-							class="datepicker-popup__sheet-header"
-						>
-							<div class="datepicker-popup__handle" />
-							<div class="datepicker-popup__sheet-title">
-								<span>{{ chooseDateLabel }}</span>
-								<BaseButton
-									class="datepicker-popup__clear"
-									@click.stop="clear"
-								>
-									{{ $t('input.datepicker.clear') }}
-								</BaseButton>
-							</div>
-						</div>
-
-						<DatepickerInline
-							v-model="date"
-							:show-shortcuts="showShortcuts"
-							:shortcuts-layout="isMobile ? 'top' : layout"
-							:large="isMobile"
-							:min-date="minDate"
-							@update:modelValue="updateData"
-						/>
-
-						<div class="datepicker-popup__footer">
-							<div class="datepicker-popup__summary">
-								<Icon
-									:icon="['far', 'calendar-check']"
-									class="datepicker-popup__summary-icon"
-								/>
-								<span>{{ date === null ? $t('input.datepicker.noDate') : formatDate(date, summaryFormat) }}</span>
-							</div>
+						<div class="datepicker-popup__handle" />
+						<div class="datepicker-popup__sheet-title">
+							<span>{{ chooseDateLabel }}</span>
 							<BaseButton
-								v-if="isDev && !isMobile"
-								v-tooltip="'Dev: toggle shortcut layout'"
-								class="datepicker-popup__layout-toggle"
-								@click.stop="toggleLayout"
-							>
-								{{ layout === 'sidebar' ? 'A' : 'B' }}
-							</BaseButton>
-							<XButton
-								v-if="!isMobile"
-								variant="secondary"
-								:shadow="false"
+								class="datepicker-popup__clear"
 								@click.stop="clear"
 							>
 								{{ $t('input.datepicker.clear') }}
-							</XButton>
-							<XButton
-								v-cy="'closeDatepicker'"
-								class="datepicker__close-button"
-								:shadow="false"
-								@click.stop="close"
-							>
-								{{ $t('misc.confirm') }}
-							</XButton>
+							</BaseButton>
 						</div>
 					</div>
+
+					<DatepickerInline
+						v-model="date"
+						:show-shortcuts="showShortcuts"
+						:shortcuts-layout="isMobile ? 'top' : layout"
+						:large="isMobile"
+						:min-date="minDate"
+						@update:modelValue="updateData"
+					/>
+
+					<div class="datepicker-popup__footer">
+						<div class="datepicker-popup__summary">
+							<Icon
+								:icon="['far', 'calendar-check']"
+								class="datepicker-popup__summary-icon"
+							/>
+							<span>{{ date === null ? $t('input.datepicker.noDate') : formatDate(date, summaryFormat) }}</span>
+						</div>
+						<BaseButton
+							v-if="isDev && !isMobile"
+							v-tooltip="'Dev: toggle shortcut layout'"
+							class="datepicker-popup__layout-toggle"
+							@click.stop="toggleLayout"
+						>
+							{{ layout === 'sidebar' ? 'A' : 'B' }}
+						</BaseButton>
+						<XButton
+							v-if="!isMobile"
+							variant="secondary"
+							:shadow="false"
+							@click.stop="clear"
+						>
+							{{ $t('input.datepicker.clear') }}
+						</XButton>
+						<XButton
+							v-cy="'closeDatepicker'"
+							class="datepicker__close-button"
+							:shadow="false"
+							@click.stop="close"
+						>
+							{{ $t('misc.confirm') }}
+						</XButton>
+					</div>
 				</div>
-			</CustomTransition>
-		</Teleport>
+			</div>
+		</CustomTransition>
 	</div>
 </template>
 
