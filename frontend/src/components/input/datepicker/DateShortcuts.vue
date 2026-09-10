@@ -143,6 +143,17 @@ const shortcuts = computed(() => {
 	padding: .75rem 1rem;
 	border-block-end: 1px solid var(--grey-200);
 
+	// In a bottom sheet the chips become a horizontally scrollable rail.
+	.bottom-sheet & {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		scrollbar-width: none;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+	}
+
 	.date-shortcuts__item {
 		display: inline-flex;
 		align-items: center;

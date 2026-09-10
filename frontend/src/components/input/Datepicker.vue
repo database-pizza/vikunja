@@ -14,40 +14,31 @@
 
 		<!-- No Teleport: the task modal is a top-layer <dialog>, anything moved to body would sit beneath it. -->
 		<CustomTransition name="fade">
-			<div
+			<component
+				:is="isMobile ? BottomSheet : 'div'"
 				v-if="show"
-				class="datepicker-layer"
-				:class="{'is-sheet': isMobile}"
+				v-bind="isMobile ? {title: chooseDateLabel, onClose: close} : {class: 'datepicker-layer'}"
 			>
-				<div
+				<template
 					v-if="isMobile"
-					class="datepicker-scrim"
-				/>
+					#header-action
+				>
+					<BaseButton
+						class="datepicker-popup__clear"
+						@click.stop="clear"
+					>
+						{{ $t('input.datepicker.clear') }}
+					</BaseButton>
+				</template>
 				<div
 					ref="datepickerPopup"
 					class="datepicker-popup"
 					:class="`datepicker-popup--${layout}`"
-					role="dialog"
-					:aria-label="chooseDateLabel"
+					:role="isMobile ? undefined : 'dialog'"
+					:aria-label="isMobile ? undefined : chooseDateLabel"
 					tabindex="-1"
 					@keydown.esc.stop="closeViaEsc"
 				>
-					<div
-						v-if="isMobile"
-						class="datepicker-popup__sheet-header"
-					>
-						<div class="datepicker-popup__handle" />
-						<div class="datepicker-popup__sheet-title">
-							<span>{{ chooseDateLabel }}</span>
-							<BaseButton
-								class="datepicker-popup__clear"
-								@click.stop="clear"
-							>
-								{{ $t('input.datepicker.clear') }}
-							</BaseButton>
-						</div>
-					</div>
-
 					<DatepickerInline
 						v-model="date"
 						:show-shortcuts="showShortcuts"
@@ -91,17 +82,17 @@
 						</XButton>
 					</div>
 				</div>
-			</div>
+			</component>
 		</CustomTransition>
 	</div>
 </template>
 
 <script setup lang="ts">
 import {computed, ref, onMounted, onBeforeUnmount, toRef, watch, nextTick} from 'vue'
-import {useMediaQuery} from '@vueuse/core'
 import {useI18n} from 'vue-i18n'
 
 import BaseButton from '@/components/base/BaseButton.vue'
+import BottomSheet from '@/components/misc/BottomSheet.vue'
 import CustomTransition from '@/components/misc/CustomTransition.vue'
 import DatepickerInline from '@/components/input/DatepickerInline.vue'
 import SimpleButton from '@/components/input/SimpleButton.vue'
@@ -112,7 +103,7 @@ import {createDateFromString} from '@/helpers/time/createDateFromString'
 import {useDatepickerLayout} from '@/composables/useDatepickerLayout'
 import {useTimeFormat} from '@/composables/useTimeFormat'
 import {TIME_FORMAT} from '@/constants/timeFormat'
-import {BULMA_MOBILE_BREAKPOINT} from '@/constants/breakpoints'
+import {useIsMobile} from '@/composables/useIsMobile'
 
 const props = withDefaults(defineProps<{
 	modelValue: Date | null | string,
@@ -141,7 +132,7 @@ const emit = defineEmits<{
 
 const isDev = import.meta.env.DEV
 const layout = useDatepickerLayout()
-const isMobile = useMediaQuery(`(max-width: ${BULMA_MOBILE_BREAKPOINT}px)`)
+const isMobile = useIsMobile()
 
 const {store: timeFormat} = useTimeFormat()
 const summaryFormat = computed(() => timeFormat.value === TIME_FORMAT.HOURS_24 ? 'ddd, ll HH:mm' : 'ddd, ll hh:mm A')
@@ -232,21 +223,6 @@ function closeViaEsc() {
 .datepicker-layer {
 	position: absolute;
 	z-index: 99;
-
-	&.is-sheet {
-		position: fixed;
-		inset: 0;
-		z-index: 1000;
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-end;
-	}
-}
-
-.datepicker-scrim {
-	position: absolute;
-	inset: 0;
-	background: hsla(0, 0%, 4%, .4);
 }
 
 .datepicker-popup {
@@ -262,40 +238,12 @@ function closeViaEsc() {
 		inline-size: 548px;
 	}
 
-	.is-sheet & {
+	.bottom-sheet & {
 		inline-size: 100%;
-		max-block-size: 92vh;
-		overflow-y: auto;
 		border: 0;
-		border-radius: 18px 18px 0 0;
-		box-shadow: 0 -8px 30px hsla(var(--grey-500-hsl), .18);
+		border-radius: 0;
+		box-shadow: none;
 	}
-}
-
-.datepicker-popup__sheet-header {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding-block-start: .5rem;
-}
-
-.datepicker-popup__handle {
-	inline-size: 2.5rem;
-	block-size: 5px;
-	border-radius: $radius-rounded;
-	background: var(--grey-200);
-}
-
-.datepicker-popup__sheet-title {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	align-self: stretch;
-	padding: .5rem 1rem .75rem;
-	font-family: $vikunja-font;
-	font-weight: 700;
-	font-size: 1.15rem;
-	color: var(--grey-900);
 }
 
 .datepicker-popup__clear {
@@ -315,7 +263,7 @@ function closeViaEsc() {
 	border-block-start: 1px solid var(--grey-200);
 	background: var(--grey-50);
 
-	.is-sheet & {
+	.bottom-sheet & {
 		flex-direction: column;
 		align-items: stretch;
 		gap: .5rem;
@@ -352,19 +300,8 @@ function closeViaEsc() {
 }
 
 .datepicker__close-button {
-	.is-sheet & {
+	.bottom-sheet & {
 		min-block-size: 44px;
-	}
-}
-
-// The sidebar cannot sit beside the grid on a phone, so the chips become a scrollable rail.
-.is-sheet :deep(.date-shortcuts--chips) {
-	flex-wrap: nowrap;
-	overflow-x: auto;
-	scrollbar-width: none;
-
-	&::-webkit-scrollbar {
-		display: none;
 	}
 }
 </style>
