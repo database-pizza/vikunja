@@ -2,7 +2,7 @@ import {ref, watch, readonly} from 'vue'
 import {useLocalStorage, useMediaQuery} from '@vueuse/core'
 import {useRoute} from 'vue-router'
 
-const BULMA_MOBILE_BREAKPOINT = 768
+import {BULMA_MOBILE_BREAKPOINT} from '@/constants/breakpoints'
 
 export function useMenuActive() {
 	const isMobile = useMediaQuery(`(max-width: ${BULMA_MOBILE_BREAKPOINT}px)`)

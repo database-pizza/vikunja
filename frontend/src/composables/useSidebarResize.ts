@@ -2,7 +2,7 @@ import {ref, computed, onMounted, onUnmounted, watch} from 'vue'
 import {useMediaQuery} from '@vueuse/core'
 import {useAuthStore} from '@/stores/auth'
 
-const BULMA_MOBILE_BREAKPOINT = 768
+import {BULMA_MOBILE_BREAKPOINT} from '@/constants/breakpoints'
 const DEFAULT_SIDEBAR_WIDTH = 300
 const MIN_SIDEBAR_WIDTH = 200
 const MAX_SIDEBAR_WIDTH = 500

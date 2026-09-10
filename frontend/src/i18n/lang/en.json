@@ -842,7 +842,20 @@
       "thisWeekend": "This Weekend",
       "laterThisWeek": "Later This Week",
       "nextWeek": "Next Week",
-      "chooseDate": "Choose a date"
+      "chooseDate": "Choose a date",
+      "quickSelect": "Quick select",
+      "clear": "Clear",
+      "noDate": "No date set",
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "time": {
+        "hours": "Hours",
+        "minutes": "Minutes",
+        "hourUp": "One hour later",
+        "hourDown": "One hour earlier",
+        "minuteUp": "Five minutes later",
+        "minuteDown": "Five minutes earlier"
+      }
     },
     "editor": {
       "edit": "Edit",
