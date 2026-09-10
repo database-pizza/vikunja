@@ -86,6 +86,9 @@
 
 				<Popup
 					v-if="+new Date(task.dueDate) > 0"
+					placement="bottom-start"
+					sheet-on-mobile
+					:sheet-title="$t('task.deferDueDate.title')"
 				>
 					<template #trigger="{toggle, isOpen}">
 						<BaseButton
@@ -106,7 +109,6 @@
 						<DeferTask
 							v-if="isOpen"
 							v-model="task"
-							@update:modelValue="deferTaskUpdate"
 						/>
 					</template>
 				</Popup>
@@ -620,9 +622,13 @@ defineExpose({
 	color: var(--text);
 	inset-block-start: unset;
 	
-	&.is-open {
+	&.is-open:not(.is-sheet) {
 		padding: 1rem;
 		border: 1px solid var(--grey-200);
+	}
+
+	&.is-sheet {
+		box-shadow: none;
 	}
 }
 </style>

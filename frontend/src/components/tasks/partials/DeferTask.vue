@@ -106,17 +106,29 @@ $defer-task-max-width: 350px + 100px;
 	inline-size: 100%;
 	max-inline-size: $defer-task-max-width;
 
-	@media screen and (max-width: ($defer-task-max-width)) {
-		inset-inline-start: .5rem;
-		inset-inline-end: .5rem;
-		max-inline-size: 100%;
-		inline-size: calc(100vw - 1rem - 2rem);
+	// The sheet header already carries the title.
+	.bottom-sheet & {
+		max-inline-size: none;
+		padding: 0 1rem 1rem;
+
+		> .label {
+			display: none;
+		}
 	}
 }
 
 .defer-days {
 	justify-content: space-between;
 	display: flex;
+	gap: .5rem;
 	margin: .5rem 0;
+
+	.bottom-sheet & {
+		margin-block-start: 0;
+
+		> * {
+			flex: 1;
+		}
+	}
 }
 </style>
