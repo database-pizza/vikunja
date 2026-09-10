@@ -1,0 +1,102 @@
+<template>
+	<div class="date-range-input">
+		<Popup>
+			<template #trigger="{toggle, isOpen}">
+				<button
+					type="button"
+					class="input date-range-input__trigger"
+					:aria-expanded="isOpen"
+					@click.stop="toggle"
+				>
+					<span v-if="modelValue.start && modelValue.end">
+						{{ formatDate(modelValue.start, 'll') }} – {{ formatDate(modelValue.end, 'll') }}
+					</span>
+					<span
+						v-else
+						class="date-range-input__placeholder"
+					>{{ placeholder }}</span>
+				</button>
+			</template>
+			<template #content>
+				<div class="date-range-input__popup">
+					<CalendarMonth
+						mode="range"
+						:range-start="rangeStart"
+						:range-end="rangeEnd"
+						@pick="pickDay"
+					/>
+				</div>
+			</template>
+		</Popup>
+	</div>
+</template>
+
+<script setup lang="ts">
+import {computed, ref} from 'vue'
+
+import Popup from '@/components/misc/Popup.vue'
+import CalendarMonth from '@/components/input/datepicker/CalendarMonth.vue'
+
+import {formatDate} from '@/helpers/time/formatDate'
+
+const props = withDefaults(defineProps<{
+	modelValue: {start: Date | null, end: Date | null}
+	placeholder?: string
+}>(), {
+	placeholder: '',
+})
+
+const emit = defineEmits<{
+	'update:modelValue': [value: {start: Date, end: Date}]
+}>()
+
+// Only the first click of a new range; the model is untouched until the end is picked too.
+const pendingStart = ref<Date | null>(null)
+
+const rangeStart = computed(() => pendingStart.value ?? props.modelValue.start)
+const rangeEnd = computed(() => pendingStart.value ? null : props.modelValue.end)
+
+function pickDay(day: Date) {
+	if (pendingStart.value === null) {
+		pendingStart.value = day
+		return
+	}
+
+	const [start, end] = day < pendingStart.value ? [day, pendingStart.value] : [pendingStart.value, day]
+	pendingStart.value = null
+	emit('update:modelValue', {start, end})
+}
+</script>
+
+<style lang="scss" scoped>
+.date-range-input {
+	position: relative;
+}
+
+.date-range-input__trigger {
+	text-align: start;
+	cursor: pointer;
+}
+
+.date-range-input__placeholder {
+	color: var(--input-placeholder-color, var(--grey-400));
+}
+
+:deep(.popup) {
+	z-index: 10;
+	inset-block-start: 100%;
+	margin-block-start: .25rem;
+	border-radius: $radius;
+	border: 1px solid var(--grey-200);
+	background-color: var(--white);
+	box-shadow: $shadow;
+
+	&.is-open {
+		inline-size: 320px;
+	}
+}
+
+.date-range-input__popup {
+	padding: .75rem 1rem 1rem;
+}
+</style>
