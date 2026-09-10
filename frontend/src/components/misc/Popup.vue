@@ -10,12 +10,27 @@
 		class="popup"
 		:class="{
 			'is-open': openValue,
-			'has-overflow': hasOverflow && openValue
+			'has-overflow': hasOverflow && openValue,
+			'is-sheet': asSheet,
 		}"
+		:style="floatingStyle"
 		:inert="!openValue"
 		@focusin="rememberFocusEntered"
 	>
+		<BottomSheet
+			v-if="asSheet && openValue"
+			:title="sheetTitle"
+			@close="close"
+		>
+			<slot
+				name="content"
+				:is-open="openValue"
+				:toggle="toggle"
+				:close="close"
+			/>
+		</BottomSheet>
 		<slot
+			v-else
 			name="content"
 			:is-open="openValue"
 			:toggle="toggle"
@@ -25,17 +40,29 @@
 </template>
 
 <script setup lang="ts">
-import {ref, watch, watchEffect} from 'vue'
+import {computed, ref, watch, watchEffect} from 'vue'
 import {onClickOutside, onKeyStroke} from '@vueuse/core'
+import {autoUpdate, computePosition, flip, offset, shift, type Placement} from '@floating-ui/dom'
+
+import BottomSheet from '@/components/misc/BottomSheet.vue'
+import {useIsMobile} from '@/composables/useIsMobile'
 
 const props = withDefaults(defineProps<{
 	hasOverflow?: boolean
 	open?: boolean
 	ignoreClickClasses?: string[]
+	// Anchors the popup to the trigger with floating-ui (flips and shifts to stay on screen). Without it, consumers position via CSS.
+	placement?: Placement
+	// Below the tablet breakpoint the content opens as a bottom sheet instead.
+	sheetOnMobile?: boolean
+	sheetTitle?: string
 }>(), {
 	hasOverflow: false,
 	open: false,
 	ignoreClickClasses: () => [],
+	placement: undefined,
+	sheetOnMobile: false,
+	sheetTitle: '',
 })
 
 const emit = defineEmits<{
@@ -85,6 +112,36 @@ function toggle() {
 
 const popup = ref<HTMLElement | null>(null)
 
+const isMobile = useIsMobile()
+const asSheet = computed(() => props.sheetOnMobile && isMobile.value)
+
+const floatingStyle = ref<Record<string, string>>({})
+
+async function updatePosition() {
+	// The trigger slot renders right before the popup, so its last root is the anchor.
+	const reference = popup.value?.previousElementSibling
+	if (!reference || !popup.value || !props.placement) {
+		return
+	}
+	const {x, y} = await computePosition(reference, popup.value, {
+		placement: props.placement,
+		strategy: 'absolute',
+		middleware: [offset(4), flip({padding: 8}), shift({padding: 8})],
+	})
+	floatingStyle.value = {left: `${x}px`, top: `${y}px`}
+}
+
+let stopAutoUpdate: (() => void) | null = null
+watch([openValue, asSheet], ([open, sheet]) => {
+	stopAutoUpdate?.()
+	stopAutoUpdate = null
+	if (!open || sheet || !props.placement || !popup.value?.previousElementSibling) {
+		floatingStyle.value = {}
+		return
+	}
+	stopAutoUpdate = autoUpdate(popup.value.previousElementSibling, popup.value, updatePosition)
+}, {flush: 'post'})
+
 let lastFocused: HTMLElement | null = null
 let focusEnteredPopup = false
 
@@ -110,6 +167,12 @@ watch(openValue, open => {
 
 onClickOutside(popup, (event) => {
 	const target = event.target as HTMLElement
+	// The mobile sheet is teleported out of the popup element, so it must not count as "outside".
+	// Checked here rather than via the ignore option: that relies on a bubbling pointerdown, which
+	// content like DeferTask stops.
+	if (target?.closest?.('.bottom-sheet')) {
+		return
+	}
 	// Check if the click target has any of the ignored classes
 	if (target?.classList && props.ignoreClickClasses.some(className => target.classList.contains(className))) {
 		return
@@ -132,7 +195,8 @@ onKeyStroke('Escape', event => {
 
 	// Scope to the popup owning focus — lastFocused is the trigger, which keeps focus after opening.
 	const target = event.target as Node | null
-	if (!target || (!popup.value?.contains(target) && target !== lastFocused)) {
+	const insideSheet = target instanceof Element && target.closest('.bottom-sheet') !== null
+	if (!target || (!popup.value?.contains(target) && !insideSheet && target !== lastFocused)) {
 		return
 	}
 
@@ -157,6 +221,13 @@ onKeyStroke('Escape', event => {
 		opacity: 1;
 		visibility: visible;
 		block-size: auto;
+	}
+
+	// The sheet inside positions itself against the viewport; the popup box must not clip or offset it.
+	&.is-sheet {
+		position: static;
+		block-size: auto;
+		overflow: visible;
 	}
 }
 </style>
