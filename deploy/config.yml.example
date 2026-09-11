@@ -1,0 +1,32 @@
+# Vikunja configuration for tasks.database.pizza.
+#
+# Install as /home/pizzadatabase/vikunja/shared/config.yml with mode 0600 and
+# fill in the placeholders. Never commit real secrets.
+
+service:
+  # Generate with: openssl rand -hex 32
+  secret: <generated-on-host>
+  publicurl: https://tasks.database.pizza
+  rootpath: /home/pizzadatabase/vikunja/shared
+  interface: 127.0.0.1:3456
+
+database:
+  type: pizzasql
+  # Hosted managed PizzaSQL through the local PostgreSQL proxy.
+  host: 127.0.0.1:5432
+  # Managed databases are scoped as "org/db".
+  database: <org>/<db>
+  user: vikunja
+  # The scoped API key is the password.
+  password: <scoped-api-key>
+  sslmode: disable
+  maxopenconnections: 3
+  maxidleconnections: 2
+
+files:
+  basepath: /home/pizzadatabase/vikunja/shared/files
+
+# Registration stays open for the initial administrator; disable it after.
+auth:
+  local:
+    enabled: true

@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# PROVIDE: vikunja
+# REQUIRE: NETWORKING
+# KEYWORD: shutdown
+
+# Vikunja service for tasks.database.pizza.
+#
+# Install as /usr/local/etc/rc.d/vikunja and enable with:
+#   sysrc vikunja_enable=YES
+#   service vikunja start
+#
+# daemon(8) supervises with "-r -R 5" and keeps the supervisor PID in
+# /var/run/vikunja.pid (via -P, the parent pidfile). Stopping the service
+# signals the supervisor, which terminates the Vikunja child gracefully.
+
+. /etc/rc.subr
+
+name="vikunja"
+rcvar="vikunja_enable"
+
+command="/usr/sbin/daemon"
+procname="/usr/sbin/daemon"
+pidfile="/var/run/vikunja.pid"
+
+load_rc_config "$name"
+
+: ${vikunja_enable:="NO"}
+# daemon(8) opens the pidfile and log as root, then drops only the child.
+: ${vikunja_daemon_user:="vikunja"}
+: ${vikunja_home:="/home/pizzadatabase/vikunja/shared"}
+: ${vikunja_bin:="/home/pizzadatabase/vikunja/current/vikunja"}
+: ${vikunja_conf:="/home/pizzadatabase/vikunja/shared/config.yml"}
+: ${vikunja_log:="/var/log/vikunja.log"}
+
+required_files="${vikunja_bin} ${vikunja_conf}"
+
+command_args="-f -r -R 5 -P ${pidfile} -o ${vikunja_log} -u ${vikunja_daemon_user} /usr/bin/env HOME=${vikunja_home} ${vikunja_bin} --config ${vikunja_conf} web"
+
+run_rc_command "$1"

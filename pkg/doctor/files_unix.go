@@ -39,8 +39,9 @@ func checkDiskSpace(path string) CheckResult {
 		}
 	}
 
-	// Available space in bytes
-	availableBytes := stat.Bavail * uint64(stat.Bsize)
+	// Available space in bytes. Bavail/Bsize differ in signedness across
+	// platforms (notably FreeBSD), so normalize both to uint64.
+	availableBytes := uint64(stat.Bavail) * uint64(stat.Bsize)
 	availableGB := float64(availableBytes) / (1024 * 1024 * 1024)
 
 	return CheckResult{
