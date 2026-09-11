@@ -27,7 +27,6 @@
 		</div>
 
 		<TimeControl
-			v-if="enableTime"
 			:hours="date?.getHours() ?? defaultTime.hours"
 			:minutes="date?.getMinutes() ?? defaultTime.minutes"
 			@update="setTime"
@@ -51,13 +50,11 @@ const props = withDefaults(defineProps<{
 	showShortcuts?: boolean
 	// Chips fit narrow containers (mobile sheet, reminder popup); the sidebar needs the full popup width.
 	shortcutsLayout?: 'sidebar' | 'chips'
-	enableTime?: boolean
 	minDate?: Date | null
 	large?: boolean
 }>(), {
 	showShortcuts: true,
 	shortcutsLayout: 'sidebar',
-	enableTime: true,
 	minDate: null,
 	large: false,
 })
@@ -90,9 +87,6 @@ function update(value: Date | null) {
 }
 
 function withCurrentTime(day: Date, fallback: Date): Date {
-	if (!props.enableTime) {
-		return day
-	}
 	const result = new Date(day)
 	if (date.value) {
 		result.setHours(date.value.getHours(), date.value.getMinutes(), 0, 0)
