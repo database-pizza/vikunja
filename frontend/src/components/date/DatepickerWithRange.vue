@@ -1,6 +1,7 @@
 <template>
 	<div class="datepicker-with-range-container">
 		<Popup
+			v-model:open="isPopupOpen"
 			placement="bottom-start"
 			sheet-on-mobile
 			:sheet-title="$t('misc.dateRange')"
@@ -156,6 +157,13 @@ const {rangeStart, rangeEnd, pickDay, reset: resetPendingRange} = useRangePick(
 		to.value = formatDate(end, 'YYYY-MM-DD 23:59')
 	},
 )
+
+const isPopupOpen = ref(false)
+watch(isPopupOpen, open => {
+	if (!open) {
+		resetPendingRange()
+	}
+})
 
 function setDateRange(range: string[] | null) {
 	resetPendingRange()

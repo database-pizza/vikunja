@@ -1,6 +1,7 @@
 <template>
 	<div class="date-range-input">
 		<Popup
+			v-model:open="isPopupOpen"
 			placement="bottom-start"
 			sheet-on-mobile
 			:sheet-title="placeholder"
@@ -36,6 +37,8 @@
 </template>
 
 <script setup lang="ts">
+import {ref, watch} from 'vue'
+
 import Popup from '@/components/misc/Popup.vue'
 import CalendarMonth from '@/components/input/datepicker/CalendarMonth.vue'
 
@@ -53,11 +56,18 @@ const emit = defineEmits<{
 	'update:modelValue': [value: {start: Date, end: Date}]
 }>()
 
-const {rangeStart, rangeEnd, pickDay} = useRangePick(
+const {rangeStart, rangeEnd, pickDay, reset} = useRangePick(
 	() => props.modelValue.start,
 	() => props.modelValue.end,
 	(start, end) => emit('update:modelValue', {start, end}),
 )
+
+const isPopupOpen = ref(false)
+watch(isPopupOpen, open => {
+	if (!open) {
+		reset()
+	}
+})
 </script>
 
 <style lang="scss" scoped>
