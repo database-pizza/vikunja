@@ -3,6 +3,8 @@
 		<Popup
 			:open="open"
 			:ignore-click-classes="ignoreClickClasses"
+			sheet-on-mobile
+			:sheet-title="$t('input.datepickerRange.date')"
 			@update:open="(open) => !open && $emit('update:open', false)"
 		>
 			<template #content="{isOpen}">
@@ -153,6 +155,14 @@ const customRangeActive = computed<boolean>(() => {
 		inline-size: 560px;
 		max-inline-size: calc(100vw - 2rem);
 	}
+
+	&.is-sheet {
+		inline-size: auto;
+		margin: 0;
+		border: 0;
+		box-shadow: none;
+		background: transparent;
+	}
 }
 
 .datepicker-with-range {
@@ -203,5 +213,46 @@ const customRangeActive = computed<boolean>(() => {
 			background-color: var(--grey-100);
 		}
 	}
+}
+
+.bottom-sheet .datepicker-with-range {
+	flex-direction: column;
+}
+
+.bottom-sheet .selections {
+	flex-direction: row;
+	flex-wrap: nowrap;
+	inline-size: 100%;
+	max-block-size: none;
+	gap: .5rem;
+	padding: .75rem 1rem;
+	overflow-x: auto;
+	overflow-y: hidden;
+	border-block-end: 1px solid var(--grey-200);
+	scrollbar-width: none;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+	button {
+		inline-size: auto;
+		padding: .3125rem .6875rem;
+		border: 1px solid var(--grey-200);
+		border-radius: $radius-rounded;
+		white-space: nowrap;
+		font-weight: 600;
+
+		&.is-active {
+			background: var(--primary);
+			border-color: var(--primary);
+			color: var(--primary-invert);
+		}
+	}
+}
+
+.bottom-sheet .calendar-container {
+	inline-size: 100%;
+	border-inline-start: 0;
 }
 </style>

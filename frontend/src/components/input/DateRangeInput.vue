@@ -1,6 +1,10 @@
 <template>
 	<div class="date-range-input">
-		<Popup>
+		<Popup
+			placement="bottom-start"
+			sheet-on-mobile
+			:sheet-title="placeholder"
+		>
 			<template #trigger="{toggle, isOpen}">
 				<button
 					type="button"
@@ -84,8 +88,6 @@ function pickDay(day: Date) {
 
 :deep(.popup) {
 	z-index: 10;
-	inset-block-start: 100%;
-	margin-block-start: .25rem;
 	border-radius: $radius;
 	border: 1px solid var(--grey-200);
 	background-color: var(--white);
@@ -94,6 +96,18 @@ function pickDay(day: Date) {
 	&.is-open {
 		inline-size: 320px;
 	}
+
+	&.is-sheet {
+		inline-size: auto;
+		margin: 0;
+		border: 0;
+		box-shadow: none;
+		background: transparent;
+	}
+}
+
+.bottom-sheet .date-range-input__popup {
+	padding-block-end: 1.5rem;
 }
 
 .date-range-input__popup {
