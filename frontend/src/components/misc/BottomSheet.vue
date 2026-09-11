@@ -47,21 +47,17 @@ const emit = defineEmits<{
 	close: []
 }>()
 
-// Fixed positioning is trapped by ancestor stacking contexts (the app header would cover the sheet), so render at
-// the top of the tree. A task modal is a top-layer <dialog>, and body would sit beneath it, so go there instead.
+// Fixed positioning is trapped by ancestor stacking contexts; the open task modal is a top-layer <dialog>, so teleport into it or body would sit beneath.
 const openDialogs = document.querySelectorAll('dialog[open]')
 const teleportTarget = openDialogs.length > 0 ? openDialogs[openDialogs.length - 1] : document.body
 
 const sheet = ref<HTMLElement | null>(null)
 
-// The sheet is another modal layer: nothing behind it may scroll. <html> is the page scroller here (body's
-// overflow does not propagate to the viewport because html sets its own), and inside a task modal the scroller
-// is a descendant of the dialog, so on top of the overflow locks every wheel/touch outside the sheet is swallowed.
+// Nothing behind the sheet may scroll: lock <html>/body (the real page scrollers) and swallow wheel/touch outside the sheet.
 const body = ref<HTMLElement | null>(null)
 const htmlScrollLocked = useScrollLock(document.documentElement)
 const bodyScrollLocked = useScrollLock(document.body)
-// Inside a task modal the page does not scroll at all; .modal-container does, and its classic scrollbar
-// would stay visible (and draggable) next to the sheet unless it is locked as well.
+// Inside a task modal .modal-container is the scroller; lock it too or its scrollbar stays visible and draggable.
 const dialogScrollers: {element: HTMLElement, overflow: string}[] = []
 onMounted(() => {
 	htmlScrollLocked.value = true

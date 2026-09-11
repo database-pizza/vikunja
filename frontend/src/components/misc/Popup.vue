@@ -52,7 +52,6 @@ const props = withDefaults(defineProps<{
 	ignoreClickClasses?: string[]
 	// Anchors the popup to the trigger with floating-ui (flips and shifts to stay on screen). Without it, consumers position via CSS.
 	placement?: Placement
-	// Below the tablet breakpoint the content opens as a bottom sheet instead.
 	sheetOnMobile?: boolean
 	sheetTitle?: string
 }>(), {

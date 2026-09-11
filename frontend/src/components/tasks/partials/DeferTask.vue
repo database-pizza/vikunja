@@ -123,7 +123,6 @@ $defer-task-max-width: 350px + 100px;
 	inline-size: 100%;
 	max-inline-size: $defer-task-max-width;
 
-	// The sheet header already carries the title.
 	.bottom-sheet & {
 		max-inline-size: none;
 		padding: 0 1rem 1rem;

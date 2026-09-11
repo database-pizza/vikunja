@@ -908,7 +908,6 @@ test.describe('Task', () => {
 			await page.locator('.task-view .columns.details .column button').filter({hasText: 'Add a reminder'}).click()
 
 			const openPopup = page.locator('.reminder-options-popup.is-open')
-			// Wait for the calendar to appear
 			await expect(openPopup.locator('.calendar-month')).toBeVisible()
 
 			// Track whether any task save request fires

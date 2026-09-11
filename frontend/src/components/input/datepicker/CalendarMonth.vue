@@ -150,8 +150,7 @@ function monthOf(date: Date) {
 const cells = computed(() => buildMonthGrid(view.value.year, view.value.month, weekStart.value)
 	.map(cell => ({...cell, classes: cellClasses(cell)})))
 
-// Follow outside changes (shortcut, v-model) but stay put when the new value is already on screen,
-// e.g. a range start picked in the leading days of the grid.
+// Follow outside changes (shortcut, v-model) but stay put when the new value is already on screen.
 watch(anchor, (date) => {
 	if (!date) {
 		return

@@ -44,8 +44,7 @@ function isPointlessLate(key: DateShortcutKey, now: Date): boolean {
 	return key === 'today' || (key === 'thisWeekend' && now.getDay() === 0)
 }
 
-// Several shortcuts can land on the same day (Friday: tomorrow = this weekend); the earlier, more
-// basic one wins so no two entries highlight together.
+// Several shortcuts can land on the same day (Friday: tomorrow = this weekend); the earlier, more basic one wins so no two entries highlight together.
 export function buildDateShortcuts(now: Date = new Date()): DateShortcut[] {
 	const shortcuts: DateShortcut[] = []
 	for (const key of DATE_SHORTCUT_KEYS) {
