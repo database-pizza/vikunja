@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from 'vue'
+import {useNow} from '@vueuse/core'
 import XButton from '@/components/input/Button.vue'
 import ApiTokenService from '@/services/apiToken'
 import ApiTokenModel from '@/models/apiTokenModel'
@@ -27,7 +28,7 @@ const emit = defineEmits<{
 }>()
 
 const service = new ApiTokenService()
-const now = new Date()
+const now = useNow({interval: 60_000})
 
 const DEFAULT_EXPIRY_DAYS = 30
 
