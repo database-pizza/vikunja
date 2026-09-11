@@ -55,13 +55,29 @@ const teleportTarget = openDialogs.length > 0 ? openDialogs[openDialogs.length -
 const body = ref<HTMLElement | null>(null)
 const htmlScrollLocked = useScrollLock(document.documentElement)
 const bodyScrollLocked = useScrollLock(document.body)
+// Inside a task modal the page does not scroll at all; .modal-container does, and its classic scrollbar
+// would stay visible (and draggable) next to the sheet unless it is locked as well.
+const dialogScrollers: {element: HTMLElement, overflow: string}[] = []
 onMounted(() => {
 	htmlScrollLocked.value = true
 	bodyScrollLocked.value = true
+	if (teleportTarget === document.body) {
+		return
+	}
+	for (const element of teleportTarget.querySelectorAll<HTMLElement>('*')) {
+		const overflowY = getComputedStyle(element).overflowY
+		if ((overflowY === 'auto' || overflowY === 'scroll') && element.scrollHeight > element.clientHeight) {
+			dialogScrollers.push({element, overflow: element.style.overflow})
+			element.style.overflow = 'hidden'
+		}
+	}
 })
 onBeforeUnmount(() => {
 	htmlScrollLocked.value = false
 	bodyScrollLocked.value = false
+	for (const {element, overflow} of dialogScrollers) {
+		element.style.overflow = overflow
+	}
 })
 useEventListener(window, ['wheel', 'touchmove'], (event: Event) => {
 	if (!body.value?.contains(event.target as Node)) {
@@ -131,5 +147,10 @@ useEventListener(window, ['wheel', 'touchmove'], (event: Event) => {
 	min-block-size: 0;
 	overflow-y: auto;
 	overscroll-behavior: contain;
+
+	// The mobile task modal stretches every descendant .card to viewport height; a card inside the sheet must not be.
+	:deep(.card) {
+		min-block-size: 0 !important;
+	}
 }
 </style>
