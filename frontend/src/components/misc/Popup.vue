@@ -17,18 +17,21 @@
 		:inert="!openValue"
 		@focusin="rememberFocusEntered"
 	>
-		<BottomSheet
-			v-if="asSheet && openValue"
-			:title="sheetTitle"
-			@close="close"
-		>
-			<slot
-				name="content"
-				:is-open="openValue"
-				:toggle="toggle"
-				:close="close"
-			/>
-		</BottomSheet>
+		<!-- Closed sheet renders nothing: the popup box is static in sheet mode and would reserve the content's height. -->
+		<template v-if="asSheet">
+			<BottomSheet
+				v-if="openValue"
+				:title="sheetTitle"
+				@close="close"
+			>
+				<slot
+					name="content"
+					:is-open="openValue"
+					:toggle="toggle"
+					:close="close"
+				/>
+			</BottomSheet>
+		</template>
 		<slot
 			v-else
 			name="content"
