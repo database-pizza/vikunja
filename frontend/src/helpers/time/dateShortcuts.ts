@@ -16,8 +16,11 @@ export type DateShortcutKey = typeof DATE_SHORTCUT_KEYS[number]
 
 function resolve(key: DateShortcutKey, now: Date): Date {
 	switch (key) {
-		case 'nextWeekend':
-			return addDays(now, calculateDayInterval('thisWeekend', now.getDay()) + 7)
+		case 'nextWeekend': {
+			const daysUntilSaturday = (6 - now.getDay() + 7) % 7
+			// On Sunday the weekend just ended, so the very next Saturday already is "next weekend" — no extra week to skip.
+			return addDays(now, now.getDay() === 0 ? daysUntilSaturday : daysUntilSaturday + 7)
+		}
 		case 'endOfMonth':
 			return new Date(now.getFullYear(), now.getMonth() + 1, 0)
 		case 'inAMonth': {

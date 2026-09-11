@@ -23,6 +23,11 @@ describe('buildDateShortcuts', () => {
 		expect(byKey.inAMonth).toEqual(new Date(2026, 9, 15))
 	})
 
+	it('resolves next weekend to the very next Saturday on a Sunday', () => {
+		const byKey = Object.fromEntries(buildDateShortcuts(new Date(2026, 8, 13, 10)).map(s => [s.key, s.date]))
+		expect(byKey.nextWeekend).toEqual(new Date(2026, 8, 19))
+	})
+
 	it('clamps "in a month" to the last day of the target month', () => {
 		const byKey = Object.fromEntries(buildDateShortcuts(new Date(2026, 0, 31, 10)).map(s => [s.key, s.date]))
 		expect(byKey.inAMonth).toEqual(new Date(2026, 1, 28))
