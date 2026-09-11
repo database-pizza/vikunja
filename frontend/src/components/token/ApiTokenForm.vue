@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
+import {onMounted, ref, watch} from 'vue'
 import XButton from '@/components/input/Button.vue'
 import ApiTokenService from '@/services/apiToken'
 import ApiTokenModel from '@/models/apiTokenModel'
@@ -29,10 +29,22 @@ const emit = defineEmits<{
 const service = new ApiTokenService()
 const now = new Date()
 
+const DEFAULT_EXPIRY_DAYS = 30
+
+function expiryDateIn(days: number) {
+	return new Date(Date.now() + days * MILLISECONDS_A_DAY)
+}
+
 const availableRoutes = ref(null)
 const newToken = ref<IApiToken>(new ApiTokenModel())
-const newTokenExpiry = ref<string | number>(30)
-const newTokenExpiryCustom = ref<Date | null>(new Date(Date.now() + 30 * MILLISECONDS_A_DAY))
+const newTokenExpiry = ref<string | number>(DEFAULT_EXPIRY_DAYS)
+const newTokenExpiryCustom = ref<Date | null>(expiryDateIn(DEFAULT_EXPIRY_DAYS))
+
+watch(newTokenExpiry, (value, oldValue) => {
+	if (value === 'custom' && !isNaN(Number(oldValue))) {
+		newTokenExpiryCustom.value = expiryDateIn(Number(oldValue))
+	}
+})
 const newTokenPermissions = ref({})
 const newTokenPermissionsGroup = ref({})
 const newTokenTitleValid = ref(true)
@@ -237,7 +249,7 @@ async function createToken() {
 
 	const expiry = Number(newTokenExpiry.value)
 	if (!isNaN(expiry)) {
-		newToken.value.expiresAt = new Date((+new Date()) + expiry * MILLISECONDS_A_DAY)
+		newToken.value.expiresAt = expiryDateIn(expiry)
 	} else {
 		const customExpiry = newTokenExpiryCustom.value === null ? null : new Date(newTokenExpiryCustom.value)
 		if (customExpiry === null || isNaN(customExpiry.getTime()) || customExpiry <= new Date()) {
@@ -257,8 +269,8 @@ async function createToken() {
 	// Reset before emitting: parents hide the form in their `created` handler, so
 	// anything after the emit would write to a component that's already unmounting.
 	newToken.value = new ApiTokenModel()
-	newTokenExpiry.value = 30
-	newTokenExpiryCustom.value = new Date(Date.now() + 30 * MILLISECONDS_A_DAY)
+	newTokenExpiry.value = DEFAULT_EXPIRY_DAYS
+	newTokenExpiryCustom.value = expiryDateIn(DEFAULT_EXPIRY_DAYS)
 	newTokenExpiryValid.value = true
 	resetPermissions()
 
