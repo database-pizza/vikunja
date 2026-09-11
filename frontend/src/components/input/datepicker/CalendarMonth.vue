@@ -290,9 +290,10 @@ function onKeydown(event: KeyboardEvent) {
 	}
 	if (event.key === 'PageUp' || event.key === 'PageDown') {
 		event.preventDefault()
-		const date = new Date(focusedDate.value)
-		date.setMonth(date.getMonth() + (event.key === 'PageUp' ? -1 : 1))
-		focusDay(date)
+		const year = focusedDate.value.getFullYear()
+		const month = focusedDate.value.getMonth() + (event.key === 'PageUp' ? -1 : 1)
+		const lastDay = new Date(year, month + 1, 0).getDate()
+		focusDay(new Date(year, month, Math.min(focusedDate.value.getDate(), lastDay)))
 	}
 }
 </script>
