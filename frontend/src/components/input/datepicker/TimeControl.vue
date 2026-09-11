@@ -130,7 +130,9 @@ function onInput(part: 'hours' | 'minutes', event: Event) {
 	}
 
 	if (part === 'minutes') {
-		emit('update', {hours: props.hours, minutes: Math.min(59, Math.max(0, value))})
+		const minutes = Math.min(59, Math.max(0, value))
+		emit('update', {hours: props.hours, minutes})
+		target.value = pad(minutes)
 		return
 	}
 
@@ -143,6 +145,7 @@ function onInput(part: 'hours' | 'minutes', event: Event) {
 		hours = (clamped % 12) + (props.hours >= 12 ? 12 : 0)
 	}
 	emit('update', {hours, minutes: props.minutes})
+	target.value = is24h.value ? pad(hours) : pad(((hours + 11) % 12) + 1)
 }
 
 function toggleMeridiem() {

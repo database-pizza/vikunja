@@ -35,8 +35,8 @@
 					pattern="[0-9]*"
 					maxlength="4"
 					:aria-label="$t('input.datepicker.year')"
-					@change="setYear(($event.target as HTMLInputElement).value)"
-					@keydown.enter.prevent="setYear(($event.target as HTMLInputElement).value)"
+					@change="setYear($event)"
+					@keydown.enter.prevent="setYear($event)"
 				>
 			</div>
 			<BaseButton
@@ -162,9 +162,11 @@ function setMonth(value: string) {
 	view.value = {year: view.value.year, month: Number(value)}
 }
 
-function setYear(value: string) {
-	const year = Number.parseInt(value, 10)
+function setYear(event: Event) {
+	const target = event.target as HTMLInputElement
+	const year = Number.parseInt(target.value, 10)
 	if (Number.isNaN(year) || year < 1 || year > 9999) {
+		target.value = String(view.value.year)
 		return
 	}
 	view.value = {year, month: view.value.month}
