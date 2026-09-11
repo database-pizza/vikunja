@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, watch, watchEffect} from 'vue'
+import {computed, onScopeDispose, ref, watch, watchEffect} from 'vue'
 import {onClickOutside, onKeyStroke} from '@vueuse/core'
 import {autoUpdate, computePosition, flip, offset, shift, type Placement} from '@floating-ui/dom'
 
@@ -144,6 +144,11 @@ watch([openValue, asSheet], ([open, sheet]) => {
 	}
 	stopAutoUpdate = autoUpdate(popup.value.previousElementSibling, popup.value, updatePosition)
 }, {flush: 'post'})
+
+onScopeDispose(() => {
+	stopAutoUpdate?.()
+	stopAutoUpdate = null
+})
 
 let lastFocused: HTMLElement | null = null
 let focusEnteredPopup = false
