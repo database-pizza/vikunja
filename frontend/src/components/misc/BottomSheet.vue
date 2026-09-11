@@ -73,18 +73,21 @@ useEventListener(window, ['wheel', 'touchmove'], (event: Event) => {
 <style lang="scss" scoped>
 .bottom-sheet {
 	position: fixed;
-	inset: 0;
+	inset-block: 0;
+	inset-inline-start: 0;
+	// inset: 0 stops short of a classic scrollbar (Firefox with scrollbar-width: thin), leaving a bare strip; 100vw covers it.
+	inline-size: 100vw;
 	z-index: 1000;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
-	max-inline-size: 100vw;
 }
 
 .bottom-sheet__scrim {
 	position: absolute;
 	inset: 0;
 	background: hsla(0, 0%, 4%, .4);
+	touch-action: none;
 }
 
 .bottom-sheet__panel {
@@ -92,7 +95,6 @@ useEventListener(window, ['wheel', 'touchmove'], (event: Event) => {
 	display: flex;
 	flex-direction: column;
 	inline-size: 100%;
-	max-inline-size: 100vw;
 	overflow-x: hidden;
 	max-block-size: 92dvh;
 	background: var(--white);
