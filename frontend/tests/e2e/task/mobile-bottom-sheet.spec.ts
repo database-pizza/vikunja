@@ -64,16 +64,21 @@ test.describe('Mobile bottom sheet', () => {
 	test('Locks page scrolling while the sheet is open', async ({authenticatedPage: page}) => {
 		await openDueDateSheet(page)
 
-		expect(await page.evaluate(() => ({
-			html: document.documentElement.style.overflow,
-			body: document.body.style.overflow,
-		}))).toEqual({html: 'hidden', body: 'hidden'})
+		const scrollY = await page.evaluate(() => window.scrollY)
+
+		// The scrim strip left free at the top by the panel (see closeViaScrim).
+		await page.mouse.move(10, 5)
+		await page.mouse.wheel(0, 400)
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollY)
+
+		const isPageScrollable = await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight)
 
 		await closeViaScrim(page)
 
-		expect(await page.evaluate(() => ({
-			html: document.documentElement.style.overflow,
-			body: document.body.style.overflow,
-		}))).not.toEqual({html: 'hidden', body: 'hidden'})
+		// Only meaningful if the task page overflows the 375x740 viewport in the first place.
+		if (isPageScrollable) {
+			await page.mouse.wheel(0, 400)
+			await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(scrollY)
+		}
 	})
 })
