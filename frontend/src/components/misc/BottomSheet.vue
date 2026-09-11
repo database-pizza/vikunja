@@ -110,10 +110,15 @@ onBeforeUnmount(() => {
 		element.style.overflow = overflow
 	}
 })
+
+// A nested Modal (e.g. datepicker's "Learn how" help) teleports its own <dialog> to body, outside the sheet — it owns the event.
+function isFromDialogAboveSheet(event: Event) {
+	const dialog = (event.target as Element)?.closest?.('dialog[open]')
+	return dialog ? !dialog.contains(sheet.value) : false
+}
+
 useEventListener(window, ['wheel', 'touchmove'], (event: Event) => {
-	// A nested Modal (e.g. datepicker's "Learn how" help) teleports its own <dialog> to body, outside `body.value` — let it scroll.
-	const dialog = (event.target as Element).closest?.('dialog[open]')
-	if (dialog && !dialog.contains(sheet.value)) {
+	if (isFromDialogAboveSheet(event)) {
 		return
 	}
 	if (!body.value?.contains(event.target as Node)) {
@@ -124,6 +129,10 @@ useEventListener(window, ['wheel', 'touchmove'], (event: Event) => {
 onKeyStroke('Escape', event => {
 	// defaultPrevented means an inner control (Multiselect, …) already consumed this Escape.
 	if (event.defaultPrevented) {
+		return
+	}
+
+	if (isFromDialogAboveSheet(event)) {
 		return
 	}
 
