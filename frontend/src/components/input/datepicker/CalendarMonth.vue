@@ -181,6 +181,7 @@ watch(view, () => {
 	}
 	const fallback = cells.value.find(cell => isSameDay(cell.date, anchor.value))
 		?? cells.value.find(cell => cell.inMonth && !isDisabled(cell.date))
+		?? cells.value.find(cell => !isDisabled(cell.date))
 	if (fallback) {
 		focusedDate.value = fallback.date
 	}
