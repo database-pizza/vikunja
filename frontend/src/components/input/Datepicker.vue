@@ -17,7 +17,7 @@
 			<component
 				:is="isMobile ? BottomSheet : 'div'"
 				v-if="show"
-				v-bind="isMobile ? {title: chooseDateLabel, onClose: close} : {class: 'datepicker-layer'}"
+				v-bind="isMobile ? {title: title, onClose: close} : {class: 'datepicker-layer'}"
 			>
 				<template
 					v-if="isMobile"
@@ -35,7 +35,7 @@
 					class="datepicker-popup"
 					:class="`datepicker-popup--${layout}`"
 					:role="isMobile ? undefined : 'dialog'"
-					:aria-label="isMobile ? undefined : chooseDateLabel"
+					:aria-label="isMobile ? undefined : title"
 					tabindex="-1"
 					@keydown.esc.stop="closeViaEsc"
 				>
@@ -107,7 +107,10 @@ import {useIsMobile} from '@/composables/useIsMobile'
 
 const props = withDefaults(defineProps<{
 	modelValue: Date | null | string,
+	// Trigger text while no date is set.
 	chooseDateLabel?: string,
+	// Dialog title, e.g. the attribute name ("Due Date").
+	title?: string,
 	disabled?: boolean,
 	showShortcuts?: boolean,
 	// When the value is null, show this (italic) instead of chooseDateLabel.
@@ -115,6 +118,10 @@ const props = withDefaults(defineProps<{
 	minDate?: Date | null,
 }>(), {
 	chooseDateLabel: () => {
+		const {t} = useI18n({useScope: 'global'})
+		return t('input.datepicker.chooseDate')
+	},
+	title: () => {
 		const {t} = useI18n({useScope: 'global'})
 		return t('input.datepicker.chooseDate')
 	},
