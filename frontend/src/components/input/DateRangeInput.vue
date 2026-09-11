@@ -96,14 +96,6 @@ function pickDay(day: Date) {
 	&.is-open {
 		inline-size: 320px;
 	}
-
-	&.is-sheet {
-		inline-size: auto;
-		margin: 0;
-		border: 0;
-		box-shadow: none;
-		background: transparent;
-	}
 }
 
 .bottom-sheet .date-range-input__popup {

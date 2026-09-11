@@ -155,14 +155,6 @@ const customRangeActive = computed<boolean>(() => {
 		inline-size: 560px;
 		max-inline-size: calc(100vw - 2rem);
 	}
-
-	&.is-sheet {
-		inline-size: auto;
-		margin: 0;
-		border: 0;
-		box-shadow: none;
-		background: transparent;
-	}
 }
 
 .datepicker-with-range {

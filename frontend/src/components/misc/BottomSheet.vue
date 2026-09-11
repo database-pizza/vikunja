@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, ref} from 'vue'
-import {useEventListener, useScrollLock} from '@vueuse/core'
+import {onKeyStroke, useEventListener, useScrollLock} from '@vueuse/core'
 
 withDefaults(defineProps<{
 	title?: string
@@ -93,6 +93,17 @@ useEventListener(window, ['wheel', 'touchmove'], (event: Event) => {
 		event.preventDefault()
 	}
 }, {passive: false, capture: true})
+
+onKeyStroke('Escape', event => {
+	// defaultPrevented means an inner control (Multiselect, …) already consumed this Escape.
+	if (event.defaultPrevented) {
+		return
+	}
+
+	// Cancels the close request of a wrapping native <dialog> so only the sheet closes.
+	event.preventDefault()
+	emit('close')
+})
 </script>
 
 <style lang="scss" scoped>

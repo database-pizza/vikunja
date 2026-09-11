@@ -5,35 +5,31 @@
 		:toggle="toggle"
 		:close="close"
 	/>
+	<BottomSheet
+		v-if="asSheet && openValue"
+		:title="sheetTitle"
+		@close="close"
+	>
+		<slot
+			name="content"
+			:is-open="openValue"
+			:toggle="toggle"
+			:close="close"
+		/>
+	</BottomSheet>
 	<div
+		v-else
 		ref="popup"
 		class="popup"
 		:class="{
 			'is-open': openValue,
 			'has-overflow': hasOverflow && openValue,
-			'is-sheet': asSheet,
 		}"
 		:style="floatingStyle"
 		:inert="!openValue"
 		@focusin="rememberFocusEntered"
 	>
-		<!-- Closed sheet renders nothing: the popup box is static in sheet mode and would reserve the content's height. -->
-		<template v-if="asSheet">
-			<BottomSheet
-				v-if="openValue"
-				:title="sheetTitle"
-				@close="close"
-			>
-				<slot
-					name="content"
-					:is-open="openValue"
-					:toggle="toggle"
-					:close="close"
-				/>
-			</BottomSheet>
-		</template>
 		<slot
-			v-else
 			name="content"
 			:is-open="openValue"
 			:toggle="toggle"
@@ -175,12 +171,6 @@ watch(openValue, open => {
 
 onClickOutside(popup, (event) => {
 	const target = event.target as HTMLElement
-	// The mobile sheet is teleported out of the popup element, so it must not count as "outside".
-	// Checked here rather than via the ignore option: that relies on a bubbling pointerdown, which
-	// content like DeferTask stops.
-	if (target?.closest?.('.bottom-sheet')) {
-		return
-	}
 	// Check if the click target has any of the ignored classes
 	if (target?.classList && props.ignoreClickClasses.some(className => target.classList.contains(className))) {
 		return
@@ -197,14 +187,13 @@ onClickOutside(popup, (event) => {
 
 onKeyStroke('Escape', event => {
 	// defaultPrevented means an inner control (Multiselect, …) already consumed this Escape.
-	if (!openValue.value || event.defaultPrevented) {
+	if (asSheet.value || !openValue.value || event.defaultPrevented) {
 		return
 	}
 
 	// Scope to the popup owning focus — lastFocused is the trigger, which keeps focus after opening.
 	const target = event.target as Node | null
-	const insideSheet = target instanceof Element && target.closest('.bottom-sheet') !== null
-	if (!target || (!popup.value?.contains(target) && !insideSheet && target !== lastFocused)) {
+	if (!target || (!popup.value?.contains(target) && target !== lastFocused)) {
 		return
 	}
 
@@ -229,13 +218,6 @@ onKeyStroke('Escape', event => {
 		opacity: 1;
 		visibility: visible;
 		block-size: auto;
-	}
-
-	// The sheet inside positions itself against the viewport; the popup box must not clip or offset it.
-	&.is-sheet {
-		position: static;
-		block-size: auto;
-		overflow: visible;
 	}
 }
 </style>

@@ -622,13 +622,9 @@ defineExpose({
 	color: var(--text);
 	inset-block-start: unset;
 	
-	&.is-open:not(.is-sheet) {
+	&.is-open {
 		padding: 1rem;
 		border: 1px solid var(--grey-200);
-	}
-
-	&.is-sheet {
-		box-shadow: none;
 	}
 }
 </style>
