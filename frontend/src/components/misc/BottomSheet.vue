@@ -1,6 +1,9 @@
 <template>
 	<Teleport :to="teleportTarget">
-		<div class="bottom-sheet">
+		<div
+			ref="sheet"
+			class="bottom-sheet"
+		>
 			<div
 				class="bottom-sheet__scrim"
 				@click.stop="emit('close')"
@@ -49,6 +52,8 @@ const emit = defineEmits<{
 const openDialogs = document.querySelectorAll('dialog[open]')
 const teleportTarget = openDialogs.length > 0 ? openDialogs[openDialogs.length - 1] : document.body
 
+const sheet = ref<HTMLElement | null>(null)
+
 // The sheet is another modal layer: nothing behind it may scroll. <html> is the page scroller here (body's
 // overflow does not propagate to the viewport because html sets its own), and inside a task modal the scroller
 // is a descendant of the dialog, so on top of the overflow locks every wheel/touch outside the sheet is swallowed.
@@ -65,6 +70,10 @@ onMounted(() => {
 		return
 	}
 	for (const element of teleportTarget.querySelectorAll<HTMLElement>('*')) {
+		// The sheet is already teleported in here; locking its own scrollers would trap its content.
+		if (sheet.value?.contains(element)) {
+			continue
+		}
 		const overflowY = getComputedStyle(element).overflowY
 		if ((overflowY === 'auto' || overflowY === 'scroll') && element.scrollHeight > element.clientHeight) {
 			dialogScrollers.push({element, overflow: element.style.overflow})
