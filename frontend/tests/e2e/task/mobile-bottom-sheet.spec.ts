@@ -75,7 +75,6 @@ test.describe('Mobile bottom sheet', () => {
 
 		await closeViaScrim(page)
 
-		// Only meaningful if the task page overflows the 375x740 viewport in the first place.
 		if (isPageScrollable) {
 			await page.mouse.wheel(0, 400)
 			await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(scrollY)
