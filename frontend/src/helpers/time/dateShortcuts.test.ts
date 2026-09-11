@@ -6,14 +6,25 @@ const keys = (date: Date) => buildDateShortcuts(date).map(s => s.key)
 describe('buildDateShortcuts', () => {
 	it('drops shortcuts that land on the same day as an earlier one', () => {
 		// Friday: tomorrow is the weekend, "later this week" is today
-		expect(keys(new Date(2026, 8, 11, 10))).toEqual(['today', 'tomorrow', 'nextMonday', 'nextWeek'])
+		expect(keys(new Date(2026, 8, 11, 10))).toEqual(['today', 'tomorrow', 'nextMonday', 'nextWeek', 'nextWeekend', 'endOfMonth', 'inAMonth'])
 		// Monday: "next Monday" resolves to today
-		expect(keys(new Date(2026, 8, 14, 10))).toEqual(['today', 'tomorrow', 'thisWeekend', 'laterThisWeek', 'nextWeek'])
+		expect(keys(new Date(2026, 8, 14, 10))).toEqual(['today', 'tomorrow', 'thisWeekend', 'laterThisWeek', 'nextWeek', 'nextWeekend', 'endOfMonth', 'inAMonth'])
 	})
 
 	it('keeps distinct days on a midweek day', () => {
 		// Tuesday
-		expect(keys(new Date(2026, 8, 15, 10))).toEqual(['today', 'tomorrow', 'nextMonday', 'thisWeekend', 'laterThisWeek', 'nextWeek'])
+		expect(keys(new Date(2026, 8, 15, 10))).toEqual(['today', 'tomorrow', 'nextMonday', 'thisWeekend', 'laterThisWeek', 'nextWeek', 'nextWeekend', 'endOfMonth', 'inAMonth'])
+	})
+
+	it('resolves the month based shortcuts', () => {
+		const byKey = Object.fromEntries(buildDateShortcuts(new Date(2026, 8, 15, 10)).map(s => [s.key, s.date]))
+		expect(byKey.nextWeekend).toEqual(new Date(2026, 8, 26))
+		expect(byKey.endOfMonth).toEqual(new Date(2026, 8, 30))
+		expect(byKey.inAMonth).toEqual(new Date(2026, 9, 15))
+	})
+
+	it('hides end of month on the last day of the month', () => {
+		expect(keys(new Date(2026, 8, 30, 10))).not.toContain('endOfMonth')
 	})
 
 	it('hides today late in the evening', () => {

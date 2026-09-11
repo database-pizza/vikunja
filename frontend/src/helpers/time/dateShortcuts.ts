@@ -1,8 +1,34 @@
 import {calculateDayInterval} from '@/helpers/time/calculateDayInterval'
 import {addDays, isSameDay, startOfDay} from '@/helpers/time/calendarGrid'
 
-export const DATE_SHORTCUT_KEYS = ['today', 'tomorrow', 'nextMonday', 'thisWeekend', 'laterThisWeek', 'nextWeek'] as const
+export const DATE_SHORTCUT_KEYS = [
+	'today',
+	'tomorrow',
+	'nextMonday',
+	'thisWeekend',
+	'laterThisWeek',
+	'nextWeek',
+	'nextWeekend',
+	'endOfMonth',
+	'inAMonth',
+] as const
 export type DateShortcutKey = typeof DATE_SHORTCUT_KEYS[number]
+
+function resolve(key: DateShortcutKey, now: Date): Date {
+	switch (key) {
+		case 'nextWeekend':
+			return addDays(now, calculateDayInterval('thisWeekend', now.getDay()) + 7)
+		case 'endOfMonth':
+			return new Date(now.getFullYear(), now.getMonth() + 1, 0)
+		case 'inAMonth': {
+			const date = new Date(now)
+			date.setMonth(date.getMonth() + 1)
+			return date
+		}
+		default:
+			return addDays(now, calculateDayInterval(key, now.getDay()))
+	}
+}
 
 export interface DateShortcut {
 	key: DateShortcutKey
@@ -25,7 +51,7 @@ export function buildDateShortcuts(now: Date = new Date()): DateShortcut[] {
 		if (isPointlessLate(key, now)) {
 			continue
 		}
-		const date = startOfDay(addDays(now, calculateDayInterval(key, now.getDay())))
+		const date = startOfDay(resolve(key, now))
 		if (shortcuts.some(existing => isSameDay(existing.date, date))) {
 			continue
 		}

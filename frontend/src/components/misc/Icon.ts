@@ -89,6 +89,9 @@ import {
 	faVolumeHigh,
 	faX, faArrowTurnDown, faListCheck, faXmark, faXmarksLines, faFont, faRulerHorizontal, faUnderline,
 	faChevronUp,
+	faUmbrellaBeach,
+	faCalendarPlus,
+	faFlagCheckered,
 } from '@fortawesome/free-solid-svg-icons'
 import {
 	faBellSlash,
@@ -213,6 +216,9 @@ library.add(faFont)
 library.add(faRulerHorizontal)
 library.add(faUnderline)
 library.add(faChevronUp)
+library.add(faUmbrellaBeach)
+library.add(faCalendarPlus)
+library.add(faFlagCheckered)
 library.add(faCalendarCheck)
 library.add(faFaceLaugh)
 library.add(faExclamation)

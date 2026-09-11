@@ -57,6 +57,9 @@ const ICONS: Record<DateShortcutKey, IconProp> = {
 	thisWeekend: 'cocktail',
 	laterThisWeek: 'chess-knight',
 	nextWeek: 'forward',
+	nextWeekend: 'umbrella-beach',
+	endOfMonth: 'flag-checkered',
+	inAMonth: 'calendar-plus',
 }
 
 const shortcuts = computed(() => buildDateShortcuts().map(shortcut => ({...shortcut, icon: ICONS[shortcut.key]})))
