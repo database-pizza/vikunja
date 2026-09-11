@@ -133,29 +133,20 @@ function step(part: 'hours' | 'minutes', delta: number) {
 async function onInput(part: 'hours' | 'minutes', event: Event) {
 	const target = event.target as HTMLInputElement
 	const value = Number.parseInt(target.value, 10)
-	if (Number.isNaN(value)) {
-		target.value = part === 'hours' ? displayHours.value : pad(props.minutes)
-		return
-	}
 
-	if (part === 'minutes') {
-		const minutes = Math.min(59, Math.max(0, value))
-		emit('update', {hours: props.hours, minutes})
+	if (!Number.isNaN(value)) {
+		if (part === 'minutes') {
+			emit('update', {hours: props.hours, minutes: Math.min(59, Math.max(0, value))})
+		} else if (is24h.value) {
+			emit('update', {hours: Math.min(23, Math.max(0, value)), minutes: props.minutes})
+		} else {
+			// Typed "12" in 12h mode means 12 AM / 12 PM, not 0/24.
+			const clamped = Math.min(12, Math.max(1, value))
+			emit('update', {hours: (clamped % 12) + (props.hours >= 12 ? 12 : 0), minutes: props.minutes})
+		}
 		await nextTick()
-		target.value = part === 'hours' ? displayHours.value : pad(props.minutes)
-		return
 	}
 
-	let hours: number
-	if (is24h.value) {
-		hours = Math.min(23, Math.max(0, value))
-	} else {
-		// Typed "12" in 12h mode means 12 AM / 12 PM, not 0/24.
-		const clamped = Math.min(12, Math.max(1, value))
-		hours = (clamped % 12) + (props.hours >= 12 ? 12 : 0)
-	}
-	emit('update', {hours, minutes: props.minutes})
-	await nextTick()
 	target.value = part === 'hours' ? displayHours.value : pad(props.minutes)
 }
 
