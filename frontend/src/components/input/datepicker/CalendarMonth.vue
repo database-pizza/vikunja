@@ -57,35 +57,47 @@
 			@keydown="onKeydown"
 		>
 			<div
-				v-for="label in weekdayLabels"
-				:key="label"
-				class="calendar-month__weekday"
-				role="columnheader"
+				class="calendar-month__row"
+				role="row"
 			>
-				{{ label }}
+				<div
+					v-for="label in weekdayLabels"
+					:key="label"
+					class="calendar-month__weekday"
+					role="columnheader"
+				>
+					{{ label }}
+				</div>
 			</div>
 			<div
-				v-for="cell in cells"
-				:key="cell.date.getTime()"
-				class="calendar-month__cell"
-				:class="cell.classes"
-				role="gridcell"
-				@mouseenter="mode === 'range' && (hovered = cell.date)"
+				v-for="(week, index) in weeks"
+				:key="index"
+				class="calendar-month__row"
+				role="row"
 			>
-				<button
-					type="button"
-					class="calendar-month__day"
-					:class="{'is-today': isSameDay(cell.date, today)}"
-					:tabindex="isSameDay(cell.date, focusedDate) ? 0 : -1"
-					:aria-label="formatDate(cell.date, 'LL')"
-					:aria-pressed="cell.classes['is-selected']"
-					:disabled="isDisabled(cell.date) || undefined"
-					:data-date="dateKey(cell.date)"
-					@click.stop="pick(cell.date)"
-					@focus="focusedDate = cell.date"
+				<div
+					v-for="cell in week"
+					:key="cell.date.getTime()"
+					class="calendar-month__cell"
+					:class="cell.classes"
+					role="gridcell"
+					:aria-selected="cell.classes['is-selected']"
+					@mouseenter="mode === 'range' && (hovered = cell.date)"
 				>
-					{{ cell.date.getDate() }}
-				</button>
+					<button
+						type="button"
+						class="calendar-month__day"
+						:class="{'is-today': isSameDay(cell.date, today)}"
+						:tabindex="isSameDay(cell.date, focusedDate) ? 0 : -1"
+						:aria-label="formatDate(cell.date, 'LL')"
+						:disabled="isDisabled(cell.date) || undefined"
+						:data-date="dateKey(cell.date)"
+						@click.stop="pick(cell.date)"
+						@focus="focusedDate = cell.date"
+					>
+						{{ cell.date.getDate() }}
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -160,6 +172,8 @@ watch(anchor, (date) => {
 		view.value = monthOf(date)
 	}
 })
+const weeks = computed(() => Array.from({length: cells.value.length / 7}, (_, week) => cells.value.slice(week * 7, week * 7 + 7)))
+
 // The roving tabindex sits on the focused day: if it leaves the rendered month, no cell is tabbable.
 watch(view, () => {
 	if (cells.value.some(cell => isSameDay(cell.date, focusedDate.value))) {
@@ -367,6 +381,11 @@ function onKeydown(event: KeyboardEvent) {
 .calendar-month__grid {
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
+}
+
+// The rows only exist for role="row"; the cells stay direct grid items.
+.calendar-month__row {
+	display: contents;
 }
 
 .calendar-month__weekday {
