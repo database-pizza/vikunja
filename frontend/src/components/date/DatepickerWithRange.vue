@@ -132,6 +132,7 @@ watch(
 		from.value = typeof newValue.dateFrom === 'string' ? newValue.dateFrom : (newValue.dateFrom?.toISOString() ?? '')
 		to.value = typeof newValue.dateTo === 'string' ? newValue.dateTo : (newValue.dateTo?.toISOString() ?? '')
 	},
+	{immediate: true},
 )
 
 function emitChanged() {
