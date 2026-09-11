@@ -24,10 +24,7 @@
 						v-if="!hasDefaultFilters"
 						class="field"
 					>
-						<label
-							class="label"
-							for="range"
-						>Reset</label>
+						<label class="label">Reset</label>
 						<div class="control">
 							<XButton @click="setDefaultFilters">
 								Reset
