@@ -36,11 +36,10 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref} from 'vue'
-
 import Popup from '@/components/misc/Popup.vue'
 import CalendarMonth from '@/components/input/datepicker/CalendarMonth.vue'
 
+import {useRangePick} from '@/composables/useRangePick'
 import {formatDate} from '@/helpers/time/formatDate'
 
 const props = withDefaults(defineProps<{
@@ -54,22 +53,11 @@ const emit = defineEmits<{
 	'update:modelValue': [value: {start: Date, end: Date}]
 }>()
 
-// Only the first click of a new range; the model is untouched until the end is picked too.
-const pendingStart = ref<Date | null>(null)
-
-const rangeStart = computed(() => pendingStart.value ?? props.modelValue.start)
-const rangeEnd = computed(() => pendingStart.value ? null : props.modelValue.end)
-
-function pickDay(day: Date) {
-	if (pendingStart.value === null) {
-		pendingStart.value = day
-		return
-	}
-
-	const [start, end] = day < pendingStart.value ? [day, pendingStart.value] : [pendingStart.value, day]
-	pendingStart.value = null
-	emit('update:modelValue', {start, end})
-}
+const {rangeStart, rangeEnd, pickDay} = useRangePick(
+	() => props.modelValue.start,
+	() => props.modelValue.end,
+	(start, end) => emit('update:modelValue', {start, end}),
+)
 </script>
 
 <style lang="scss" scoped>

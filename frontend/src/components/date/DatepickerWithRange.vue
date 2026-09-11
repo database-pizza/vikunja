@@ -93,6 +93,8 @@ import {useI18n} from 'vue-i18n'
 import {parseDateOrString} from '@/helpers/time/parseDateOrString'
 import {formatDate} from '@/helpers/time/formatDate'
 
+import {useRangePick} from '@/composables/useRangePick'
+
 import Popup from '@/components/misc/Popup.vue'
 import CalendarMonth from '@/components/input/datepicker/CalendarMonth.vue'
 import {DATE_RANGES} from '@/components/date/dateRanges'
@@ -145,27 +147,18 @@ function asDate(value: string): Date | null {
 	return parsed instanceof Date ? parsed : null
 }
 
-// Only the first click of a new range; the model is untouched until the end is picked too.
-const pendingStart = ref<Date | null>(null)
-
-const rangeStart = computed(() => pendingStart.value ?? asDate(from.value))
-const rangeEnd = computed(() => pendingStart.value ? null : asDate(to.value))
-
-function pickDay(day: Date) {
-	if (pendingStart.value === null) {
-		pendingStart.value = day
-		return
-	}
-
-	const [start, end] = day < pendingStart.value ? [day, pendingStart.value] : [pendingStart.value, day]
-	pendingStart.value = null
-	// Inclusive end: a range ending "Sep 22" should cover the whole 22nd.
-	from.value = formatDate(start, 'YYYY-MM-DD 00:00')
-	to.value = formatDate(end, 'YYYY-MM-DD 23:59')
-}
+const {rangeStart, rangeEnd, pickDay, reset: resetPendingRange} = useRangePick(
+	() => asDate(from.value),
+	() => asDate(to.value),
+	(start, end) => {
+		// Inclusive end: a range ending "Sep 22" should cover the whole 22nd.
+		from.value = formatDate(start, 'YYYY-MM-DD 00:00')
+		to.value = formatDate(end, 'YYYY-MM-DD 23:59')
+	},
+)
 
 function setDateRange(range: string[] | null) {
-	pendingStart.value = null
+	resetPendingRange()
 	if (range === null) {
 		from.value = ''
 		to.value = ''
