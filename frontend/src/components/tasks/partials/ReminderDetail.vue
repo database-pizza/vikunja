@@ -59,7 +59,7 @@
 					<DatepickerInline
 						v-else-if="activeForm === 'absolute'"
 						v-model="reminderDate"
-						shortcuts-layout="top"
+						shortcuts-layout="chips"
 						:large="isMobile"
 					/>
 

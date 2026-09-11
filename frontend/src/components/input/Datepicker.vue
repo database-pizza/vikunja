@@ -33,7 +33,6 @@
 				<div
 					ref="datepickerPopup"
 					class="datepicker-popup"
-					:class="`datepicker-popup--${layout}`"
 					:role="isMobile ? undefined : 'dialog'"
 					:aria-label="isMobile ? undefined : title"
 					tabindex="-1"
@@ -42,7 +41,7 @@
 					<DatepickerInline
 						v-model="date"
 						:show-shortcuts="showShortcuts"
-						:shortcuts-layout="isMobile ? 'top' : layout"
+						:shortcuts-layout="isMobile ? 'chips' : 'sidebar'"
 						:large="isMobile"
 						:min-date="minDate"
 						@update:modelValue="updateData"
@@ -56,14 +55,6 @@
 							/>
 							<span>{{ date === null ? $t('input.datepicker.noDate') : formatDate(date, summaryFormat) }}</span>
 						</div>
-						<BaseButton
-							v-if="isDev && !isMobile"
-							v-tooltip="'Dev: toggle shortcut layout'"
-							class="datepicker-popup__layout-toggle"
-							@click.stop="toggleLayout"
-						>
-							{{ layout === 'sidebar' ? 'A' : 'B' }}
-						</BaseButton>
 						<XButton
 							v-if="!isMobile"
 							variant="secondary"
@@ -100,7 +91,6 @@ import SimpleButton from '@/components/input/SimpleButton.vue'
 import {formatDate, formatDisplayDate} from '@/helpers/time/formatDate'
 import {closeWhenClickedOutside} from '@/helpers/closeWhenClickedOutside'
 import {createDateFromString} from '@/helpers/time/createDateFromString'
-import {useDatepickerLayout} from '@/composables/useDatepickerLayout'
 import {useTimeFormat} from '@/composables/useTimeFormat'
 import {TIME_FORMAT} from '@/constants/timeFormat'
 import {useIsMobile} from '@/composables/useIsMobile'
@@ -137,8 +127,6 @@ const emit = defineEmits<{
 	'closeOnChange': [value: boolean],
 }>()
 
-const isDev = import.meta.env.DEV
-const layout = useDatepickerLayout()
 const isMobile = useIsMobile()
 
 const {store: timeFormat} = useTimeFormat()
@@ -174,10 +162,6 @@ function updateData() {
 function clear() {
 	date.value = null
 	updateData()
-}
-
-function toggleLayout() {
-	layout.value = layout.value === 'sidebar' ? 'top' : 'sidebar'
 }
 
 function toggleDatePopup() {
@@ -239,11 +223,7 @@ function closeViaEsc() {
 	border-radius: $radius-large;
 	box-shadow: var(--shadow-md);
 	overflow: hidden;
-	inline-size: 400px;
-
-	&--sidebar {
-		inline-size: 548px;
-	}
+	inline-size: 548px;
 
 	.bottom-sheet & {
 		inline-size: 100%;
@@ -296,14 +276,6 @@ function closeViaEsc() {
 
 .datepicker-popup__summary-icon {
 	color: var(--primary);
-}
-
-.datepicker-popup__layout-toggle {
-	padding: .125rem .5rem;
-	border: 1px dashed var(--grey-300);
-	border-radius: $radius;
-	font-size: .75rem;
-	color: var(--grey-500);
 }
 
 .datepicker__close-button {

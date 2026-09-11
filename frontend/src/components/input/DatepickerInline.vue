@@ -1,10 +1,10 @@
 <template>
 	<div
 		class="datepicker-inline"
-		:class="`datepicker-inline--${layout}`"
+		:class="`datepicker-inline--${shortcutsLayout}`"
 	>
 		<DateShortcuts
-			v-if="showShortcuts && layout === 'top'"
+			v-if="showShortcuts && shortcutsLayout === 'chips'"
 			layout="chips"
 			:active="date"
 			@select="setShortcut"
@@ -12,7 +12,7 @@
 
 		<div class="datepicker-inline__body">
 			<DateShortcuts
-				v-if="showShortcuts && layout === 'sidebar'"
+				v-if="showShortcuts && shortcutsLayout === 'sidebar'"
 				layout="list"
 				:active="date"
 				@select="setShortcut"
@@ -45,18 +45,18 @@ import TimeControl from '@/components/input/datepicker/TimeControl.vue'
 import {createDateFromString} from '@/helpers/time/createDateFromString'
 import {getDateWithTime, parseUserDefaultTime} from '@/helpers/time/getDateWithTime'
 import {useAuthStore} from '@/stores/auth'
-import {useDatepickerLayout, type DatepickerLayout} from '@/composables/useDatepickerLayout'
 
 const props = withDefaults(defineProps<{
 	modelValue: Date | null | string
 	showShortcuts?: boolean
-	shortcutsLayout?: DatepickerLayout
+	// Chips fit narrow containers (mobile sheet, reminder popup); the sidebar needs the full popup width.
+	shortcutsLayout?: 'sidebar' | 'chips'
 	enableTime?: boolean
 	minDate?: Date | null
 	large?: boolean
 }>(), {
 	showShortcuts: true,
-	shortcutsLayout: undefined,
+	shortcutsLayout: 'sidebar',
 	enableTime: true,
 	minDate: null,
 	large: false,
@@ -65,9 +65,6 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
 	'update:modelValue': [Date | null],
 }>()
-
-const storedLayout = useDatepickerLayout()
-const layout = computed(() => props.shortcutsLayout ?? storedLayout.value)
 
 const date = ref<Date | null>(null)
 
