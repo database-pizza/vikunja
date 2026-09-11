@@ -9,9 +9,11 @@
 				@click.stop="emit('close')"
 			/>
 			<div
+				ref="panel"
 				class="bottom-sheet__panel"
 				role="dialog"
 				aria-modal="true"
+				tabindex="-1"
 				:aria-label="title || undefined"
 			>
 				<div class="bottom-sheet__handle" />
@@ -34,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import {onBeforeUnmount, onMounted, ref} from 'vue'
+import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
 import {onKeyStroke, useEventListener, useScrollLock} from '@vueuse/core'
 
 withDefaults(defineProps<{
@@ -52,6 +54,9 @@ const openDialogs = document.querySelectorAll('dialog[open]')
 const teleportTarget = openDialogs.length > 0 ? openDialogs[openDialogs.length - 1] : document.body
 
 const sheet = ref<HTMLElement | null>(null)
+const panel = ref<HTMLElement | null>(null)
+const inerted: Element[] = []
+const previouslyFocused = document.activeElement as HTMLElement | null
 
 // Nothing behind the sheet may scroll: lock <html>/body (the real page scrollers) and swallow wheel/touch outside the sheet.
 const body = ref<HTMLElement | null>(null)
@@ -59,27 +64,48 @@ const htmlScrollLocked = useScrollLock(document.documentElement)
 const bodyScrollLocked = useScrollLock(document.body)
 // Inside a task modal .modal-container is the scroller; lock it too or its scrollbar stays visible and draggable.
 const dialogScrollers: {element: HTMLElement, overflow: string}[] = []
-onMounted(() => {
+onMounted(async () => {
 	htmlScrollLocked.value = true
 	bodyScrollLocked.value = true
-	if (teleportTarget === document.body) {
-		return
-	}
-	for (const element of teleportTarget.querySelectorAll<HTMLElement>('*')) {
-		// The sheet is already teleported in here; locking its own scrollers would trap its content.
-		if (sheet.value?.contains(element)) {
+
+	// aria-modal alone does not stop Tab from reaching the page behind the sheet.
+	for (const element of teleportTarget.children) {
+		if (element === sheet.value || element.hasAttribute('inert')) {
 			continue
 		}
-		const overflowY = getComputedStyle(element).overflowY
-		if ((overflowY === 'auto' || overflowY === 'scroll') && element.scrollHeight > element.clientHeight) {
-			dialogScrollers.push({element, overflow: element.style.overflow})
-			element.style.overflow = 'hidden'
+		element.setAttribute('inert', '')
+		inerted.push(element)
+	}
+
+	if (teleportTarget !== document.body) {
+		for (const element of teleportTarget.querySelectorAll<HTMLElement>('*')) {
+			// The sheet is already teleported in here; locking its own scrollers would trap its content.
+			if (sheet.value?.contains(element)) {
+				continue
+			}
+			const overflowY = getComputedStyle(element).overflowY
+			if ((overflowY === 'auto' || overflowY === 'scroll') && element.scrollHeight > element.clientHeight) {
+				dialogScrollers.push({element, overflow: element.style.overflow})
+				element.style.overflow = 'hidden'
+			}
 		}
+	}
+
+	await nextTick()
+	if (!panel.value?.contains(document.activeElement)) {
+		panel.value?.focus()
 	}
 })
 onBeforeUnmount(() => {
 	htmlScrollLocked.value = false
 	bodyScrollLocked.value = false
+	for (const element of inerted) {
+		element.removeAttribute('inert')
+	}
+	// A consumer restoring focus while the sheet was open (Datepicker on Escape) hit an inert trigger, so focus is nowhere.
+	if (previouslyFocused?.isConnected && (document.activeElement === document.body || sheet.value?.contains(document.activeElement))) {
+		previouslyFocused.focus()
+	}
 	for (const {element, overflow} of dialogScrollers) {
 		element.style.overflow = overflow
 	}
