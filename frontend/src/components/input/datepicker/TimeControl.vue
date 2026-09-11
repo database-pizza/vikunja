@@ -208,6 +208,15 @@ function formatPreset(hours: number) {
 	&:hover {
 		color: var(--primary);
 	}
+
+	// WCAG 2.5.8 minimum target size; only the sheet is touch-first, the desktop popup stays compact.
+	.bottom-sheet & {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-inline-size: 24px;
+		min-block-size: 24px;
+	}
 }
 
 .time-control__value {
