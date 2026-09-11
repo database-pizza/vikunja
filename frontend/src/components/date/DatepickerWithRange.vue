@@ -102,13 +102,15 @@ import {DATE_RANGES} from '@/components/date/dateRanges'
 import BaseButton from '@/components/base/BaseButton.vue'
 import DatemathHelp from '@/components/date/DatemathHelp.vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
 	// null for a side that's been cleared (the Custom option) — emitted, so accepted too.
-	modelValue: {
+	modelValue?: {
 		dateFrom: Date | string | null,
 		dateTo: Date | string | null,
 	},
-}>()
+}>(), {
+	modelValue: () => ({dateFrom: null, dateTo: null}),
+})
 
 const emit = defineEmits<{
 	'update:modelValue': [value: {
