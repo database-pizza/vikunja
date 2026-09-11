@@ -31,6 +31,13 @@ When the user asks you to create a plan to fix or implement something:
 
 When the user tells you to prepare a worktree for a plan, invoke the `prepare-worktree` skill.
 
+## Workspace Task Tracking
+
+database.pizza work is tracked in the hosted Vikunja instance. Its local API
+configuration is in the workspace-root `.env`, not this repository. Never add
+its token value to tracked files, logs, or responses. Use the v2 API workflow
+in `TASKS.md`; task mutations require an explicit user request.
+
 ## Development Commands
 
 `mage -l` lists every target; `pnpm run` in `frontend/` lists the frontend scripts. The non-obvious parts:
