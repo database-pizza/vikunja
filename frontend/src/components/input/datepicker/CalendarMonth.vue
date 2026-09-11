@@ -160,6 +160,18 @@ watch(anchor, (date) => {
 		view.value = monthOf(date)
 	}
 })
+// The roving tabindex sits on the focused day: if it leaves the rendered month, no cell is tabbable.
+watch(view, () => {
+	if (cells.value.some(cell => isSameDay(cell.date, focusedDate.value))) {
+		return
+	}
+	const fallback = cells.value.find(cell => isSameDay(cell.date, anchor.value))
+		?? cells.value.find(cell => cell.inMonth && !isDisabled(cell.date))
+	if (fallback) {
+		focusedDate.value = fallback.date
+	}
+})
+
 const monthNames = computed(() => Array.from({length: 12}, (_, month) => formatDate(new Date(2024, month, 1), 'MMMM')))
 
 function setMonth(value: string) {
@@ -235,6 +247,9 @@ function pick(date: Date) {
 }
 
 async function focusDay(date: Date) {
+	if (isDisabled(date)) {
+		return
+	}
 	focusedDate.value = date
 	if (date.getMonth() !== view.value.month || date.getFullYear() !== view.value.year) {
 		view.value = monthOf(date)
