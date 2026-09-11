@@ -111,6 +111,11 @@ onBeforeUnmount(() => {
 	}
 })
 useEventListener(window, ['wheel', 'touchmove'], (event: Event) => {
+	// A nested Modal (e.g. datepicker's "Learn how" help) teleports its own <dialog> to body, outside `body.value` — let it scroll.
+	const dialog = (event.target as Element).closest?.('dialog[open]')
+	if (dialog && !dialog.contains(sheet.value)) {
+		return
+	}
 	if (!body.value?.contains(event.target as Node)) {
 		event.preventDefault()
 	}
