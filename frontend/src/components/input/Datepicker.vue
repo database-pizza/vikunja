@@ -2,6 +2,7 @@
 	<div class="datepicker">
 		<SimpleButton
 			ref="triggerButton"
+			v-tooltip="date ? formatDateLong(date) : undefined"
 			class="show"
 			:disabled="disabled || undefined"
 			@click.stop="toggleDatePopup"
@@ -88,7 +89,7 @@ import CustomTransition from '@/components/misc/CustomTransition.vue'
 import DatepickerInline from '@/components/input/DatepickerInline.vue'
 import SimpleButton from '@/components/input/SimpleButton.vue'
 
-import {formatDate, formatDisplayDate} from '@/helpers/time/formatDate'
+import {formatDate, formatDateLong, formatDisplayDate} from '@/helpers/time/formatDate'
 import {closeWhenClickedOutside} from '@/helpers/closeWhenClickedOutside'
 import {createDateFromString} from '@/helpers/time/createDateFromString'
 import {useTimeFormat} from '@/composables/useTimeFormat'
