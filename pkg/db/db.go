@@ -114,6 +114,12 @@ func CreateDBEngine() (engine *xorm.Engine, err error) {
 		if err != nil {
 			return
 		}
+	case "pizzasql":
+		// SQLite-dialect SQL over the database.pizza PostgreSQL transport.
+		engine, err = initPizzasqlEngine()
+		if err != nil {
+			return
+		}
 	default:
 		log.Fatalf("Unknown database type %s", config.DatabaseType.GetString())
 	}
