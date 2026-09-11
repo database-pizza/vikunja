@@ -19,7 +19,10 @@
 					<span class="bottom-sheet__title">{{ title }}</span>
 					<slot name="header-action" />
 				</div>
-				<div class="bottom-sheet__body">
+				<div
+					ref="body"
+					class="bottom-sheet__body"
+				>
 					<slot />
 				</div>
 			</div>
@@ -28,8 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import {onBeforeUnmount, onMounted} from 'vue'
-import {useScrollLock} from '@vueuse/core'
+import {onBeforeUnmount, onMounted, ref} from 'vue'
+import {useEventListener, useScrollLock} from '@vueuse/core'
 
 withDefaults(defineProps<{
 	title?: string
@@ -46,14 +49,25 @@ const emit = defineEmits<{
 const openDialogs = document.querySelectorAll('dialog[open]')
 const teleportTarget = openDialogs.length > 0 ? openDialogs[openDialogs.length - 1] : document.body
 
-// The sheet is another modal layer: the page behind it must not scroll along with it.
-const pageScrollLocked = useScrollLock(document.body)
+// The sheet is another modal layer: nothing behind it may scroll. <html> is the page scroller here (body's
+// overflow does not propagate to the viewport because html sets its own), and inside a task modal the scroller
+// is a descendant of the dialog, so on top of the overflow locks every wheel/touch outside the sheet is swallowed.
+const body = ref<HTMLElement | null>(null)
+const htmlScrollLocked = useScrollLock(document.documentElement)
+const bodyScrollLocked = useScrollLock(document.body)
 onMounted(() => {
-	pageScrollLocked.value = true
+	htmlScrollLocked.value = true
+	bodyScrollLocked.value = true
 })
 onBeforeUnmount(() => {
-	pageScrollLocked.value = false
+	htmlScrollLocked.value = false
+	bodyScrollLocked.value = false
 })
+useEventListener(window, ['wheel', 'touchmove'], (event: Event) => {
+	if (!body.value?.contains(event.target as Node)) {
+		event.preventDefault()
+	}
+}, {passive: false, capture: true})
 </script>
 
 <style lang="scss" scoped>
@@ -64,6 +78,7 @@ onBeforeUnmount(() => {
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
+	max-inline-size: 100vw;
 }
 
 .bottom-sheet__scrim {
@@ -76,6 +91,9 @@ onBeforeUnmount(() => {
 	position: relative;
 	display: flex;
 	flex-direction: column;
+	inline-size: 100%;
+	max-inline-size: 100vw;
+	overflow-x: hidden;
 	max-block-size: 92dvh;
 	background: var(--white);
 	border-radius: 18px 18px 0 0;
