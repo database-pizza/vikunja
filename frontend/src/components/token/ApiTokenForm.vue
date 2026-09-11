@@ -32,7 +32,7 @@ const now = new Date()
 const availableRoutes = ref(null)
 const newToken = ref<IApiToken>(new ApiTokenModel())
 const newTokenExpiry = ref<string | number>(30)
-const newTokenExpiryCustom = ref<Date | null>(new Date(now))
+const newTokenExpiryCustom = ref<Date | null>(new Date(Date.now() + 30 * MILLISECONDS_A_DAY))
 const newTokenPermissions = ref({})
 const newTokenPermissionsGroup = ref({})
 const newTokenTitleValid = ref(true)
@@ -258,7 +258,7 @@ async function createToken() {
 	// anything after the emit would write to a component that's already unmounting.
 	newToken.value = new ApiTokenModel()
 	newTokenExpiry.value = 30
-	newTokenExpiryCustom.value = new Date()
+	newTokenExpiryCustom.value = new Date(Date.now() + 30 * MILLISECONDS_A_DAY)
 	newTokenExpiryValid.value = true
 	resetPermissions()
 
