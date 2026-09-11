@@ -855,7 +855,9 @@
         "hourDown": "One hour earlier",
         "minuteUp": "Five minutes later",
         "minuteDown": "Five minutes earlier"
-      }
+      },
+      "month": "Month",
+      "year": "Year"
     },
     "editor": {
       "edit": "Edit",

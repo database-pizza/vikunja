@@ -12,12 +12,32 @@
 			>
 				<Icon icon="angle-left" />
 			</BaseButton>
-			<div
-				class="calendar-month__title"
-				aria-live="polite"
-			>
-				{{ monthLabel }}
-				<span class="calendar-month__year">{{ view.year }}</span>
+			<div class="calendar-month__title">
+				<select
+					:value="view.month"
+					class="calendar-month__month-select"
+					:aria-label="$t('input.datepicker.month')"
+					@change="setMonth(($event.target as HTMLSelectElement).value)"
+				>
+					<option
+						v-for="(name, index) in monthNames"
+						:key="index"
+						:value="index"
+					>
+						{{ name }}
+					</option>
+				</select>
+				<input
+					:value="view.year"
+					class="calendar-month__year-input"
+					type="number"
+					inputmode="numeric"
+					min="1"
+					max="9999"
+					:aria-label="$t('input.datepicker.year')"
+					@change="setYear(($event.target as HTMLInputElement).value)"
+					@keydown.enter.prevent="setYear(($event.target as HTMLInputElement).value)"
+				>
 			</div>
 			<BaseButton
 				class="calendar-month__nav-button"
@@ -136,7 +156,19 @@ watch(anchor, (date) => {
 		view.value = monthOf(date)
 	}
 })
-const monthLabel = computed(() => formatDate(new Date(view.value.year, view.value.month, 1), 'MMMM'))
+const monthNames = computed(() => Array.from({length: 12}, (_, month) => formatDate(new Date(2024, month, 1), 'MMMM')))
+
+function setMonth(value: string) {
+	view.value = {year: view.value.year, month: Number(value)}
+}
+
+function setYear(value: string) {
+	const year = Number.parseInt(value, 10)
+	if (Number.isNaN(year) || year < 1 || year > 9999) {
+		return
+	}
+	view.value = {year, month: view.value.month}
+}
 
 // Dayjs 'dd' gives the locale's two-letter weekday; a fixed reference week avoids DST oddities.
 const weekdayLabels = computed(() => weekdayOrder(weekStart.value)
@@ -262,15 +294,56 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 .calendar-month__title {
+	display: flex;
+	align-items: center;
+	gap: .25rem;
+}
+
+// Both read as the plain "September 2026" heading; the native controls only show on interaction.
+.calendar-month__month-select,
+.calendar-month__year-input {
+	appearance: none;
+	border: 0;
+	background: transparent;
+	padding: .125rem .25rem;
+	border-radius: $radius;
 	font-family: $vikunja-font;
 	font-weight: 700;
 	font-size: 1.05rem;
 	color: var(--grey-900);
+	cursor: pointer;
+	transition: background-color $transition;
+
+	&:hover {
+		background: var(--grey-100);
+	}
+
+	&:focus-visible {
+		outline: none;
+		@include focus-ring;
+	}
 }
 
-.calendar-month__year {
+.calendar-month__month-select {
+	// Shrink to the selected month instead of the widest option (falls back to the full width where unsupported).
+	field-sizing: content;
+	text-align: end;
+}
+
+.calendar-month__year-input {
+	inline-size: 4.25ch;
 	color: var(--grey-400);
 	font-weight: 500;
+
+	&::-webkit-inner-spin-button,
+	&::-webkit-outer-spin-button {
+		appearance: none;
+		margin: 0;
+	}
+
+	&:focus {
+		color: var(--grey-900);
+	}
 }
 
 .calendar-month__grid {
