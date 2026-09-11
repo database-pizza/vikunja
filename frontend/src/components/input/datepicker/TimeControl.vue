@@ -134,10 +134,13 @@ function onInput(part: 'hours' | 'minutes', event: Event) {
 		return
 	}
 
-	let hours = Math.min(23, Math.max(0, value))
-	if (!is24h.value) {
+	let hours: number
+	if (is24h.value) {
+		hours = Math.min(23, Math.max(0, value))
+	} else {
 		// Typed "12" in 12h mode means 12 AM / 12 PM, not 0/24.
-		hours = (value % 12) + (props.hours >= 12 ? 12 : 0)
+		const clamped = Math.min(12, Math.max(1, value))
+		hours = (clamped % 12) + (props.hours >= 12 ? 12 : 0)
 	}
 	emit('update', {hours, minutes: props.minutes})
 }
