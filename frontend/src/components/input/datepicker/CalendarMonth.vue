@@ -68,9 +68,9 @@
 				v-for="cell in cells"
 				:key="cell.date.getTime()"
 				class="calendar-month__cell"
-				:class="cellClasses(cell)"
+				:class="cell.classes"
 				role="gridcell"
-				@mouseenter="hovered = cell.date"
+				@mouseenter="mode === 'range' && (hovered = cell.date)"
 			>
 				<button
 					type="button"
@@ -78,7 +78,7 @@
 					:class="{'is-today': isSameDay(cell.date, today)}"
 					:tabindex="isSameDay(cell.date, focusedDate) ? 0 : -1"
 					:aria-label="formatDate(cell.date, 'LL')"
-					:aria-pressed="cellClasses(cell)['is-selected']"
+					:aria-pressed="cell.classes['is-selected']"
 					:disabled="isDisabled(cell.date) || undefined"
 					:data-date="dateKey(cell.date)"
 					@click.stop="pick(cell.date)"
@@ -145,7 +145,8 @@ function monthOf(date: Date) {
 	return {year: date.getFullYear(), month: date.getMonth()}
 }
 
-const cells = computed(() => buildMonthGrid(view.value.year, view.value.month, weekStart.value))
+const cells = computed(() => buildMonthGrid(view.value.year, view.value.month, weekStart.value)
+	.map(cell => ({...cell, classes: cellClasses(cell)})))
 
 // Follow outside changes (shortcut, v-model) but stay put when the new value is already on screen,
 // e.g. a range start picked in the leading days of the grid.
