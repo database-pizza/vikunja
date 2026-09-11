@@ -229,9 +229,12 @@ function cellClasses(cell: CalendarCell) {
 		return classes
 	}
 
-	const start = props.rangeStart
-	// While only the start is picked, preview the span up to the hovered day.
-	const end = props.rangeEnd ?? (start && hovered.value && hovered.value > start ? hovered.value : null)
+	// While only the start is picked, preview the span to the hovered day in either direction.
+	const pending = props.rangeStart !== null && props.rangeEnd === null && hovered.value !== null
+		? [props.rangeStart, hovered.value].sort((a, b) => a.getTime() - b.getTime())
+		: null
+	const start = pending?.[0] ?? props.rangeStart
+	const end = pending?.[1] ?? props.rangeEnd
 
 	if (start && isSameDay(date, start)) {
 		classes['is-selected'] = true
