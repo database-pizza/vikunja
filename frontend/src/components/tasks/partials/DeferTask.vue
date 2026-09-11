@@ -74,29 +74,22 @@ watch(
 )
 
 function deferDays(days: number) {
+	debouncedUpdateDueDate.cancel()
 	const deferred = new Date(dueDate.value ?? new Date())
 	deferred.setDate(deferred.getDate() + days)
 	dueDate.value = deferred
 	updateDueDate()
 }
 
-let pending = false
 const debouncedUpdateDueDate = useDebounceFn(updateDueDate, 500)
 
 function onPickerUpdate() {
-	pending = true
 	debouncedUpdateDueDate()
 }
 
-onBeforeUnmount(() => {
-	if (pending) {
-		updateDueDate()
-	}
-})
+onBeforeUnmount(() => debouncedUpdateDueDate.flush())
 
 async function updateDueDate() {
-	pending = false
-
 	if (!dueDate.value) {
 		return
 	}
