@@ -929,7 +929,6 @@
       "from": "From",
       "fromto": "{from} to {to}",
       "date": "Date",
-      "openCalendar": "Open calendar",
       "ranges": {
         "today": "Today",
         "tomorrow": "Tomorrow",
@@ -1458,10 +1457,6 @@
       "newProject": "New project",
       "newTeam": "New team"
     }
-  },
-  "date": {
-    "altFormatLong": "j M Y, H:i",
-    "altFormatShort": "j M Y"
   },
   "reaction": {
     "reactedWith": "{user} reacted with {value}",
