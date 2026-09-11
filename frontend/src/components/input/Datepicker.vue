@@ -182,9 +182,11 @@ watch(show, async (isOpen) => {
 })
 
 function hideDatePopup(e: MouseEvent) {
-	if (show.value && datepickerPopup.value) {
-		closeWhenClickedOutside(e, datepickerPopup.value, close)
+	// In sheet mode the popup is nested inside the sheet, so its handle and header count as "outside". The scrim closes it instead.
+	if (isMobile.value || !show.value || !datepickerPopup.value) {
+		return
 	}
+	closeWhenClickedOutside(e, datepickerPopup.value, close)
 }
 
 function close() {
