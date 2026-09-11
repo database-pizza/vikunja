@@ -23,7 +23,7 @@
 			<span
 				v-if="layout === 'list'"
 				class="date-shortcuts__weekday"
-			>{{ formatDate(shortcut.date, 'ddd') }}</span>
+			>{{ shortcut.weekday }}</span>
 		</BaseButton>
 	</div>
 </template>
@@ -62,7 +62,11 @@ const ICONS: Record<DateShortcutKey, IconProp> = {
 	inAMonth: 'calendar-plus',
 }
 
-const shortcuts = computed(() => buildDateShortcuts().map(shortcut => ({...shortcut, icon: ICONS[shortcut.key]})))
+const shortcuts = computed(() => buildDateShortcuts().map(shortcut => ({
+	...shortcut,
+	icon: ICONS[shortcut.key],
+	weekday: formatDate(shortcut.date, 'ddd'),
+})))
 </script>
 
 <style lang="scss" scoped>
