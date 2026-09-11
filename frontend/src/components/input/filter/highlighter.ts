@@ -64,7 +64,7 @@ export function decorateDocument(doc: Node, labels: Label[]) {
 			const rawValue = dateMatch[4] || dateMatch[5]
 			if (rawValue) {
 				const valueText = rawValue.trim()
-				const valueStart = dateMatch.index + dateMatch[0].indexOf(rawValue)
+				const valueStart = dateMatch.index + dateMatch[0].lastIndexOf(rawValue)
 				const valueEnd = valueStart + rawValue.length
 
 				const from = findPosForIndex(doc, valueStart)
