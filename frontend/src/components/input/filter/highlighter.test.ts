@@ -26,4 +26,16 @@ describe('filter highlighter', () => {
 
 		expect(before.find()).not.toEqual(after.find())
 	})
+
+	it('marks unquoted date values as clickable', () => {
+		const decorations = decorateDocument(filterDocument('dueDate < now/w+1w'), []).find()
+		const dateValue = decorations.find(d => d.type?.attrs?.class === 'date-value')
+		expect(dateValue).toBeDefined()
+		expect(dateValue?.type?.attrs?.['data-date-value']).toBe('now/w+1w')
+	})
+
+	it('marks unquoted label values', () => {
+		const decorations = decorateDocument(filterDocument('labels = Work'), [{id: 1, title: 'Work', hex_color: 'ff006e'}]).find()
+		expect(decorations.some(d => d.type?.attrs?.class === 'label-value')).toBe(true)
+	})
 })
