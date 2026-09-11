@@ -1,8 +1,5 @@
 <template>
-	<div
-		class="date-range-input"
-		:class="$attrs.class"
-	>
+	<div class="date-range-input">
 		<Popup
 			v-model:open="isPopupOpen"
 			placement="bottom-start"
@@ -11,7 +8,7 @@
 		>
 			<template #trigger="{toggle, isOpen}">
 				<button
-					v-bind="triggerAttrs"
+					:id="id"
 					type="button"
 					class="input date-range-input__trigger"
 					:aria-expanded="isOpen"
@@ -41,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, useAttrs, watch} from 'vue'
+import {computed, ref, useId, watch} from 'vue'
 
 import Popup from '@/components/misc/Popup.vue'
 import CalendarMonth from '@/components/input/datepicker/CalendarMonth.vue'
@@ -52,6 +49,7 @@ import {formatDate} from '@/helpers/time/formatDate'
 const props = withDefaults(defineProps<{
 	modelValue: {start: Date | null, end: Date | null}
 	placeholder?: string
+	id?: string
 }>(), {
 	placeholder: '',
 })
@@ -60,11 +58,8 @@ const emit = defineEmits<{
 	'update:modelValue': [value: {start: Date, end: Date}]
 }>()
 
-defineOptions({inheritAttrs: false})
-
-// `id` has to land on the focusable control; a caller's `class` is meant for the wrapper.
-const attrs = useAttrs()
-const triggerAttrs = computed(() => Object.fromEntries(Object.entries(attrs).filter(([key]) => key !== 'class')))
+const fallbackId = useId()
+const id = computed(() => props.id ?? fallbackId)
 
 const {rangeStart, rangeEnd, pickDay, reset} = useRangePick(
 	() => props.modelValue.start,
