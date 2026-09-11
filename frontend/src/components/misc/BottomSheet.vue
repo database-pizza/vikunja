@@ -109,7 +109,8 @@ onKeyStroke('Escape', event => {
 	inset-inline-start: 0;
 	// inset: 0 stops short of a classic scrollbar (Firefox with scrollbar-width: thin), leaving a bare strip; 100vw covers it.
 	inline-size: 100vw;
-	z-index: 1000;
+	// Above the PWA/update banners (5000), below toasts (9999).
+	z-index: 6000;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
