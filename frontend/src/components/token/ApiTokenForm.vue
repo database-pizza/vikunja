@@ -318,7 +318,6 @@ async function createToken() {
 					<Datepicker
 						v-model="newTokenExpiryCustom"
 						:choose-date-label="$t('user.settings.apiTokens.attributes.expiresAt')"
-						:title="$t('user.settings.apiTokens.attributes.expiresAt')"
 						:show-shortcuts="false"
 						:min-date="now"
 						@update:modelValue="newTokenExpiryValid = true"

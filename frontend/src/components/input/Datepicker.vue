@@ -17,7 +17,7 @@
 			<component
 				:is="isMobile ? BottomSheet : 'div'"
 				v-if="show"
-				v-bind="isMobile ? {title: title, onClose: close} : {class: 'datepicker-layer'}"
+				v-bind="isMobile ? {title: dialogTitle, onClose: close} : {class: 'datepicker-layer'}"
 			>
 				<template
 					v-if="isMobile"
@@ -34,7 +34,7 @@
 					ref="datepickerPopup"
 					class="datepicker-popup"
 					:role="isMobile ? undefined : 'dialog'"
-					:aria-label="isMobile ? undefined : title"
+					:aria-label="isMobile ? undefined : dialogTitle"
 					tabindex="-1"
 					@keydown.esc.stop="closeViaEsc"
 				>
@@ -97,9 +97,7 @@ import {useIsMobile} from '@/composables/useIsMobile'
 
 const props = withDefaults(defineProps<{
 	modelValue: Date | null | string,
-	// Trigger text while no date is set.
 	chooseDateLabel?: string,
-	// Dialog title, e.g. the attribute name ("Due Date").
 	title?: string,
 	disabled?: boolean,
 	showShortcuts?: boolean,
@@ -111,10 +109,7 @@ const props = withDefaults(defineProps<{
 		const {t} = useI18n({useScope: 'global'})
 		return t('input.datepicker.chooseDate')
 	},
-	title: () => {
-		const {t} = useI18n({useScope: 'global'})
-		return t('input.datepicker.chooseDate')
-	},
+	title: '',
 	disabled: false,
 	showShortcuts: true,
 	emptyLabel: '',
@@ -128,6 +123,8 @@ const emit = defineEmits<{
 }>()
 
 const isMobile = useIsMobile()
+
+const dialogTitle = computed(() => props.title || props.chooseDateLabel)
 
 const {store: timeFormat} = useTimeFormat()
 const summaryFormat = computed(() => timeFormat.value === TIME_FORMAT.HOURS_24 ? 'ddd, ll HH:mm' : 'ddd, ll hh:mm A')
