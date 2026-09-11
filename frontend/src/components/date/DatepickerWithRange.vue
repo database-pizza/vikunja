@@ -148,6 +148,8 @@ function asDate(value: string): Date | null {
 	return parsed instanceof Date ? parsed : null
 }
 
+const isPopupOpen = ref(false)
+
 const {rangeStart, rangeEnd, pickDay, reset: resetPendingRange} = useRangePick(
 	() => asDate(from.value),
 	() => asDate(to.value),
@@ -156,14 +158,8 @@ const {rangeStart, rangeEnd, pickDay, reset: resetPendingRange} = useRangePick(
 		from.value = formatDate(start, 'YYYY-MM-DD 00:00')
 		to.value = formatDate(end, 'YYYY-MM-DD 23:59')
 	},
+	isPopupOpen,
 )
-
-const isPopupOpen = ref(false)
-watch(isPopupOpen, open => {
-	if (!open) {
-		resetPendingRange()
-	}
-})
 
 function setDateRange(range: string[] | null) {
 	resetPendingRange()

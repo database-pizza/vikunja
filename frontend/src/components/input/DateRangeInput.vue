@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, useId, watch} from 'vue'
+import {computed, ref, useId} from 'vue'
 
 import Popup from '@/components/misc/Popup.vue'
 import CalendarMonth from '@/components/input/datepicker/CalendarMonth.vue'
@@ -61,18 +61,14 @@ const emit = defineEmits<{
 const fallbackId = useId()
 const id = computed(() => props.id ?? fallbackId)
 
-const {rangeStart, rangeEnd, pickDay, reset} = useRangePick(
+const isPopupOpen = ref(false)
+
+const {rangeStart, rangeEnd, pickDay} = useRangePick(
 	() => props.modelValue.start,
 	() => props.modelValue.end,
 	(start, end) => emit('update:modelValue', {start, end}),
+	isPopupOpen,
 )
-
-const isPopupOpen = ref(false)
-watch(isPopupOpen, open => {
-	if (!open) {
-		reset()
-	}
-})
 </script>
 
 <style lang="scss" scoped>
