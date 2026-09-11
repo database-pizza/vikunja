@@ -81,8 +81,12 @@ const authStore = useAuthStore()
 const defaultTime = computed(() => parseUserDefaultTime(authStore.settings.frontendSettings.defaultDueTime) ?? {hours: 12, minutes: 0})
 
 function update(value: Date | null) {
-	date.value = value
-	emit('update:modelValue', value)
+	// The calendar only compares days, so a picked day can still carry a time before minDate.
+	const clamped = value !== null && props.minDate && value < props.minDate
+		? new Date(props.minDate)
+		: value
+	date.value = clamped
+	emit('update:modelValue', clamped)
 }
 
 function withCurrentTime(day: Date, fallback: Date): Date {
