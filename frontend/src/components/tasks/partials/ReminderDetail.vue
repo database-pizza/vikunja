@@ -295,6 +295,13 @@ function translateUnit(amount: number, unit: PeriodUnit): string {
 		border: 0;
 		box-shadow: none;
 		border-radius: 0;
+		padding-block-end: .5rem;
+
+		.option-button {
+			inline-size: 100%;
+			padding: .75rem 1rem;
+			font-size: 1rem;
+		}
 	}
 
 	.option-button {
