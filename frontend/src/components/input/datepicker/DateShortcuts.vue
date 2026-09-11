@@ -85,7 +85,7 @@ const shortcuts = computed(() => buildDateShortcuts().map(shortcut => ({
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: .05em;
-		color: var(--grey-400);
+		color: var(--grey-600);
 		padding: .125rem .625rem .5rem;
 	}
 

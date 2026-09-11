@@ -370,7 +370,7 @@ function onKeydown(event: KeyboardEvent) {
 	inline-size: 3.25em;
 	min-inline-size: 3.25em;
 	field-sizing: content;
-	color: var(--grey-400);
+	color: var(--grey-600);
 	font-weight: 500;
 
 	&:focus {
@@ -394,7 +394,7 @@ function onKeydown(event: KeyboardEvent) {
 	font-weight: 700;
 	letter-spacing: .03em;
 	text-transform: uppercase;
-	color: var(--grey-400);
+	color: var(--grey-600);
 	padding-block-end: .25rem;
 }
 
@@ -437,7 +437,7 @@ function onKeydown(event: KeyboardEvent) {
 	}
 
 	.is-outside & {
-		color: var(--grey-300);
+		color: var(--grey-500);
 	}
 
 	&.is-today {
