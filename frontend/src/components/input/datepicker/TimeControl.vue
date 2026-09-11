@@ -68,7 +68,7 @@
 				class="time-control__meridiem"
 				@click.stop="toggleMeridiem"
 			>
-				{{ hours < 12 ? 'AM' : 'PM' }}
+				{{ meridiemLabel }}
 			</button>
 		</div>
 
@@ -92,6 +92,7 @@ import {computed} from 'vue'
 
 import {useTimeFormat} from '@/composables/useTimeFormat'
 import {TIME_FORMAT} from '@/constants/timeFormat'
+import {formatDate} from '@/helpers/time/formatDate'
 
 const props = defineProps<{
 	hours: number
@@ -112,6 +113,9 @@ const pad = (n: number) => String(n).padStart(2, '0')
 const displayHours = computed(() => is24h.value
 	? pad(props.hours)
 	: pad(((props.hours + 11) % 12) + 1))
+
+const hourAsDate = (hours: number) => new Date(2024, 0, 1, hours)
+const meridiemLabel = computed(() => formatDate(hourAsDate(props.hours), 'A'))
 
 function step(part: 'hours' | 'minutes', delta: number) {
 	if (part === 'hours') {
@@ -156,7 +160,7 @@ function formatPreset(hours: number) {
 	if (is24h.value) {
 		return `${pad(hours)}:00`
 	}
-	return `${((hours + 11) % 12) + 1} ${hours < 12 ? 'AM' : 'PM'}`
+	return formatDate(hourAsDate(hours), 'h A')
 }
 </script>
 
