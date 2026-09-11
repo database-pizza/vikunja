@@ -18,7 +18,7 @@
 		/>
 	</BottomSheet>
 	<div
-		v-else
+		v-else-if="!asSheet"
 		ref="popup"
 		class="popup"
 		:class="{
