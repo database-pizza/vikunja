@@ -30,10 +30,10 @@
 				<input
 					:value="view.year"
 					class="calendar-month__year-input"
-					type="number"
+					type="text"
 					inputmode="numeric"
-					min="1"
-					max="9999"
+					pattern="[0-9]*"
+					maxlength="4"
 					:aria-label="$t('input.datepicker.year')"
 					@change="setYear(($event.target as HTMLInputElement).value)"
 					@keydown.enter.prevent="setYear(($event.target as HTMLInputElement).value)"
@@ -330,16 +330,13 @@ function onKeydown(event: KeyboardEvent) {
 	text-align: end;
 }
 
+// type="text" rather than number: Firefox keeps spinner arrows on number inputs regardless of appearance.
 .calendar-month__year-input {
-	inline-size: 4.25ch;
+	inline-size: 3.25em;
+	min-inline-size: 3.25em;
+	field-sizing: content;
 	color: var(--grey-400);
 	font-weight: 500;
-
-	&::-webkit-inner-spin-button,
-	&::-webkit-outer-spin-button {
-		appearance: none;
-		margin: 0;
-	}
 
 	&:focus {
 		color: var(--grey-900);
