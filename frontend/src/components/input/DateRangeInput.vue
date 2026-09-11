@@ -8,7 +8,7 @@
 		>
 			<template #trigger="{toggle, isOpen}">
 				<button
-					:id="id"
+					:id="inputId"
 					type="button"
 					class="input date-range-input__trigger"
 					:aria-expanded="isOpen"
@@ -59,7 +59,7 @@ const emit = defineEmits<{
 }>()
 
 const fallbackId = useId()
-const id = computed(() => props.id ?? fallbackId)
+const inputId = computed(() => props.id ?? fallbackId)
 
 const isPopupOpen = ref(false)
 
