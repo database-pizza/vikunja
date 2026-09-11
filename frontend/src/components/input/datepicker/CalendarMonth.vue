@@ -6,6 +6,7 @@
 	>
 		<div class="calendar-month__nav">
 			<BaseButton
+				v-tooltip="$t('input.datepicker.previousMonth')"
 				class="calendar-month__nav-button"
 				:aria-label="$t('input.datepicker.previousMonth')"
 				@click.stop="moveMonth(-1)"
@@ -40,6 +41,7 @@
 				>
 			</div>
 			<BaseButton
+				v-tooltip="$t('input.datepicker.nextMonth')"
 				class="calendar-month__nav-button"
 				:aria-label="$t('input.datepicker.nextMonth')"
 				@click.stop="moveMonth(1)"

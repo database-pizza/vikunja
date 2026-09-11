@@ -7,6 +7,7 @@
 			/>
 			<div class="time-control__segment">
 				<button
+					v-tooltip="$t('input.datepicker.time.hourUp')"
 					type="button"
 					class="time-control__step"
 					:aria-label="$t('input.datepicker.time.hourUp')"
@@ -25,6 +26,7 @@
 					@keydown.down.prevent="step('hours', -1)"
 				>
 				<button
+					v-tooltip="$t('input.datepicker.time.hourDown')"
 					type="button"
 					class="time-control__step"
 					:aria-label="$t('input.datepicker.time.hourDown')"
@@ -36,6 +38,7 @@
 			<span class="time-control__colon">:</span>
 			<div class="time-control__segment">
 				<button
+					v-tooltip="$t('input.datepicker.time.minuteUp')"
 					type="button"
 					class="time-control__step"
 					:aria-label="$t('input.datepicker.time.minuteUp')"
@@ -54,6 +57,7 @@
 					@keydown.down.prevent="step('minutes', -1)"
 				>
 				<button
+					v-tooltip="$t('input.datepicker.time.minuteDown')"
 					type="button"
 					class="time-control__step"
 					:aria-label="$t('input.datepicker.time.minuteDown')"
