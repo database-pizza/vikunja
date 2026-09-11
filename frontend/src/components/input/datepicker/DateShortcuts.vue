@@ -34,8 +34,8 @@ import {computed} from 'vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 
 import {formatDate} from '@/helpers/time/formatDate'
-import {calculateDayInterval} from '@/helpers/time/calculateDayInterval'
-import {addDays, isSameDay, startOfDay} from '@/helpers/time/calendarGrid'
+import {isSameDay} from '@/helpers/time/calendarGrid'
+import {buildDateShortcuts, type DateShortcutKey} from '@/helpers/time/dateShortcuts'
 import type {IconProp} from '@fortawesome/fontawesome-svg-core'
 
 withDefaults(defineProps<{
@@ -50,27 +50,16 @@ const emit = defineEmits<{
 	select: [date: Date]
 }>()
 
-const SHORTCUTS: {key: string, icon: IconProp}[] = [
-	{key: 'today', icon: ['far', 'calendar-alt']},
-	{key: 'tomorrow', icon: ['far', 'sun']},
-	{key: 'nextMonday', icon: 'coffee'},
-	{key: 'thisWeekend', icon: 'cocktail'},
-	{key: 'laterThisWeek', icon: 'chess-knight'},
-	{key: 'nextWeek', icon: 'forward'},
-]
+const ICONS: Record<DateShortcutKey, IconProp> = {
+	today: ['far', 'calendar-alt'],
+	tomorrow: ['far', 'sun'],
+	nextMonday: 'coffee',
+	thisWeekend: 'cocktail',
+	laterThisWeek: 'chess-knight',
+	nextWeek: 'forward',
+}
 
-const shortcuts = computed(() => {
-	const now = new Date()
-	const lateEvening = now.getHours() >= 21
-
-	return SHORTCUTS
-		// Late in the day "today" is pointless; on a late Sunday "this weekend" would be today as well.
-		.filter(({key}) => !(lateEvening && (key === 'today' || (key === 'thisWeekend' && now.getDay() === 0))))
-		.map(shortcut => ({
-			...shortcut,
-			date: startOfDay(addDays(now, calculateDayInterval(shortcut.key))),
-		}))
-})
+const shortcuts = computed(() => buildDateShortcuts().map(shortcut => ({...shortcut, icon: ICONS[shortcut.key]})))
 </script>
 
 <style lang="scss" scoped>
