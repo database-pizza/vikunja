@@ -8,12 +8,17 @@
 		<template #default>
 			<Card :has-content="false">
 				<div class="gantt-options">
-					<FormField :label="$t('misc.dateRange')">
-						<DateRangeInput
-							id="range"
-							v-model="dateRange"
-							:placeholder="$t('misc.dateRange')"
-						/>
+					<FormField
+						id="range"
+						:label="$t('misc.dateRange')"
+					>
+						<template #default="{ id }">
+							<DateRangeInput
+								:id="id"
+								v-model="dateRange"
+								:placeholder="$t('misc.dateRange')"
+							/>
+						</template>
 					</FormField>
 					<div
 						v-if="!hasDefaultFilters"
