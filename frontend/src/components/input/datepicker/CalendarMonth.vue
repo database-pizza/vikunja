@@ -99,14 +99,16 @@ import BaseButton from '@/components/base/BaseButton.vue'
 import {useAuthStore} from '@/stores/auth'
 import {formatDate} from '@/helpers/time/formatDate'
 import {
-	addDays,
 	buildMonthGrid,
-	isDayBetween,
-	isSameDay,
-	startOfDay,
 	weekdayOrder,
 	type CalendarCell,
 } from '@/helpers/time/calendarGrid'
+import {
+	addDays,
+	isDayBetween,
+	isSameDay,
+	startOfDay,
+} from '@/helpers/time/dateMath'
 
 const props = withDefaults(defineProps<{
 	mode?: 'single' | 'range'

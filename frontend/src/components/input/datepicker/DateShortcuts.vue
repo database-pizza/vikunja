@@ -34,7 +34,7 @@ import {computed} from 'vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 
 import {formatDate} from '@/helpers/time/formatDate'
-import {isSameDay} from '@/helpers/time/calendarGrid'
+import {isSameDay} from '@/helpers/time/dateMath'
 import {buildDateShortcuts, type DateShortcutKey} from '@/helpers/time/dateShortcuts'
 import type {IconProp} from '@fortawesome/fontawesome-svg-core'
 
