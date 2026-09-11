@@ -32,10 +32,11 @@ const now = new Date()
 const availableRoutes = ref(null)
 const newToken = ref<IApiToken>(new ApiTokenModel())
 const newTokenExpiry = ref<string | number>(30)
-const newTokenExpiryCustom = ref(new Date(now))
+const newTokenExpiryCustom = ref<Date | null>(new Date(now))
 const newTokenPermissions = ref({})
 const newTokenPermissionsGroup = ref({})
 const newTokenTitleValid = ref(true)
+const newTokenExpiryValid = ref(true)
 const newTokenPermissionValid = ref(true)
 const apiTokenTitle = ref()
 
@@ -238,7 +239,13 @@ async function createToken() {
 	if (!isNaN(expiry)) {
 		newToken.value.expiresAt = new Date((+new Date()) + expiry * MILLISECONDS_A_DAY)
 	} else {
-		newToken.value.expiresAt = new Date(newTokenExpiryCustom.value)
+		const customExpiry = newTokenExpiryCustom.value === null ? null : new Date(newTokenExpiryCustom.value)
+		if (customExpiry === null || isNaN(customExpiry.getTime()) || customExpiry <= new Date()) {
+			newTokenExpiryValid.value = false
+			return
+		}
+		newTokenExpiryValid.value = true
+		newToken.value.expiresAt = customExpiry
 	}
 
 	if (props.ownerId > 0) {
@@ -252,6 +259,7 @@ async function createToken() {
 	newToken.value = new ApiTokenModel()
 	newTokenExpiry.value = 30
 	newTokenExpiryCustom.value = new Date()
+	newTokenExpiryValid.value = true
 	resetPermissions()
 
 	emit('created', token)
@@ -313,9 +321,16 @@ async function createToken() {
 						:title="$t('user.settings.apiTokens.attributes.expiresAt')"
 						:show-shortcuts="false"
 						:min-date="now"
+						@update:modelValue="newTokenExpiryValid = true"
 					/>
 				</div>
 			</div>
+			<p
+				v-if="!newTokenExpiryValid"
+				class="help is-danger"
+			>
+				{{ $t('user.settings.apiTokens.expiryInvalid') }}
+			</p>
 		</div>
 
 		<!-- Permissions -->
