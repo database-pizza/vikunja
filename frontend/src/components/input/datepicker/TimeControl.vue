@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed} from 'vue'
+import {computed, nextTick} from 'vue'
 
 import {useTimeFormat} from '@/composables/useTimeFormat'
 import {TIME_FORMAT} from '@/constants/timeFormat'
@@ -130,7 +130,7 @@ function step(part: 'hours' | 'minutes', delta: number) {
 	emit('update', {hours: Math.floor(total / 60), minutes: total % 60})
 }
 
-function onInput(part: 'hours' | 'minutes', event: Event) {
+async function onInput(part: 'hours' | 'minutes', event: Event) {
 	const target = event.target as HTMLInputElement
 	const value = Number.parseInt(target.value, 10)
 	if (Number.isNaN(value)) {
@@ -141,7 +141,8 @@ function onInput(part: 'hours' | 'minutes', event: Event) {
 	if (part === 'minutes') {
 		const minutes = Math.min(59, Math.max(0, value))
 		emit('update', {hours: props.hours, minutes})
-		target.value = pad(minutes)
+		await nextTick()
+		target.value = part === 'hours' ? displayHours.value : pad(props.minutes)
 		return
 	}
 
@@ -154,7 +155,8 @@ function onInput(part: 'hours' | 'minutes', event: Event) {
 		hours = (clamped % 12) + (props.hours >= 12 ? 12 : 0)
 	}
 	emit('update', {hours, minutes: props.minutes})
-	target.value = is24h.value ? pad(hours) : pad(((hours + 11) % 12) + 1)
+	await nextTick()
+	target.value = part === 'hours' ? displayHours.value : pad(props.minutes)
 }
 
 function toggleMeridiem() {
