@@ -126,7 +126,8 @@ function step(part: 'hours' | 'minutes', delta: number) {
 		emit('update', {hours: (props.hours + delta + 24) % 24, minutes: props.minutes})
 		return
 	}
-	emit('update', {hours: props.hours, minutes: (props.minutes + delta + 60) % 60})
+	const total = (((props.hours * 60 + props.minutes + delta) % 1440) + 1440) % 1440
+	emit('update', {hours: Math.floor(total / 60), minutes: total % 60})
 }
 
 function onInput(part: 'hours' | 'minutes', event: Event) {
