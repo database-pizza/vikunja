@@ -23,6 +23,11 @@ describe('buildDateShortcuts', () => {
 		expect(byKey.inAMonth).toEqual(new Date(2026, 9, 15))
 	})
 
+	it('clamps "in a month" to the last day of the target month', () => {
+		const byKey = Object.fromEntries(buildDateShortcuts(new Date(2026, 0, 31, 10)).map(s => [s.key, s.date]))
+		expect(byKey.inAMonth).toEqual(new Date(2026, 1, 28))
+	})
+
 	it('hides end of month on the last day of the month', () => {
 		expect(keys(new Date(2026, 8, 30, 10))).not.toContain('endOfMonth')
 	})

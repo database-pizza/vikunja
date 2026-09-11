@@ -22,7 +22,8 @@ function resolve(key: DateShortcutKey, now: Date): Date {
 			return new Date(now.getFullYear(), now.getMonth() + 1, 0)
 		case 'inAMonth': {
 			const date = new Date(now)
-			date.setMonth(date.getMonth() + 1)
+			const lastDay = new Date(now.getFullYear(), now.getMonth() + 2, 0).getDate()
+			date.setMonth(date.getMonth() + 1, Math.min(now.getDate(), lastDay))
 			return date
 		}
 		default:
