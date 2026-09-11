@@ -34,13 +34,14 @@
 		<DatepickerInline
 			v-model="dueDate"
 			:show-shortcuts="false"
-			@update:modelValue="updateDueDate"
+			@update:modelValue="onPickerUpdate"
 		/>
 	</div>
 </template>
 
 <script setup lang="ts">
-import {ref, shallowReactive, watch} from 'vue'
+import {ref, shallowReactive, watch, onBeforeUnmount} from 'vue'
+import {useDebounceFn} from '@vueuse/core'
 
 import DatepickerInline from '@/components/input/DatepickerInline.vue'
 
@@ -79,7 +80,23 @@ function deferDays(days: number) {
 	updateDueDate()
 }
 
+let pending = false
+const debouncedUpdateDueDate = useDebounceFn(updateDueDate, 500)
+
+function onPickerUpdate() {
+	pending = true
+	debouncedUpdateDueDate()
+}
+
+onBeforeUnmount(() => {
+	if (pending) {
+		updateDueDate()
+	}
+})
+
 async function updateDueDate() {
+	pending = false
+
 	if (!dueDate.value) {
 		return
 	}
