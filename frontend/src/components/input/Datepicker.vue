@@ -36,7 +36,7 @@
 					:role="isMobile ? undefined : 'dialog'"
 					:aria-label="isMobile ? undefined : dialogTitle"
 					tabindex="-1"
-					@keydown.esc.stop="closeViaEsc"
+					@keydown.esc.stop="close"
 				>
 					<DatepickerInline
 						v-model="date"
@@ -193,19 +193,20 @@ function close() {
 	// Kind of dirty, but the timeout allows us to enter a time and click on "confirm" without
 	// having to click on another input field before it is actually used.
 	setTimeout(() => {
+		// An outside click that moved focus to another control keeps it; everything else would drop focus to <body>.
+		const active = document.activeElement
+		const restoreFocus = active === null || active === document.body || (datepickerPopup.value?.contains(active) ?? false)
+
 		show.value = false
+		if (restoreFocus) {
+			triggerButton.value?.focus()
+		}
 		emit('close', changed.value)
 		if (changed.value) {
 			changed.value = false
 			emit('closeOnChange', changed.value)
 		}
 	}, 200)
-}
-
-function closeViaEsc() {
-	// close() defers unmount by 200ms; focus would otherwise drop to <body>.
-	triggerButton.value?.focus()
-	close()
 }
 </script>
 
