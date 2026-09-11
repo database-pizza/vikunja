@@ -24,7 +24,10 @@
 						v-if="!hasDefaultFilters"
 						class="field"
 					>
-						<label class="label">Reset</label>
+						<span
+							class="label"
+							aria-hidden="true"
+						>Reset</span>
 						<div class="control">
 							<XButton @click="setDefaultFilters">
 								Reset
