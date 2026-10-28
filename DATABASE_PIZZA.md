@@ -25,7 +25,9 @@ sslmode = disable
 
 `sslmode` defaults to `disable` for this backend. The managed database.pizza
 service scopes databases as `org/db` and uses the API key as the password; a
-local engine accepts any user.
+local engine accepts any user. The managed pgproxy can terminate TLS
+(`require`/`verify-full`) when the deployment installs a certificate; `disable`
+is intentional only on the trusted loopback hop.
 
 ## Engine requirements
 
@@ -42,9 +44,13 @@ This backend only works against a PizzaSQL source build that implements:
   including the `excluded` pseudo-table, used for task buckets and positions.
 - Enforced unique indexes and composite constraints.
 - Correlated `EXISTS` subqueries in single-table `WHERE` clauses.
+- `CHECK` and `FOREIGN KEY` declarations are rejected at DDL with `0A000`;
+  Vikunja's schema declares neither, so migrations are unaffected.
 
 ## Status
 
 This backend is experimental and was validated against a local PizzaSQL engine
 running Vikunja's full migration suite and task/project CRUD through the HTTP
-API. It is not deployed, and the engine changes it depends on are not published.
+API. It is deployed at `https://tasks.database.pizza` through the managed
+PostgreSQL proxy; local source builds remain the integration path for engine
+changes.
