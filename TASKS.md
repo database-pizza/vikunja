@@ -59,5 +59,8 @@ curl -fsS -X PATCH \
   "$VIKUNJA_API_URL/tasks/<task-id>"
 ```
 
-Create, modify, or complete tasks only when the user explicitly asks. Reading
-task status is safe when it directly answers the user's request.
+Vikunja is the source of truth for non-trivial workspace work. Find or create
+the matching project and task before implementation, use task comments for
+progress and verification updates, and complete tasks only after their required
+work is verified. Reading task status is safe when it directly answers the
+user's request.
