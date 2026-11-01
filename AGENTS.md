@@ -36,7 +36,12 @@ When the user tells you to prepare a worktree for a plan, invoke the `prepare-wo
 database.pizza work is tracked in the hosted Vikunja instance. Its local API
 configuration is in the workspace-root `.env`, not this repository. Never add
 its token value to tracked files, logs, or responses. Use the v2 API workflow
-in `TASKS.md`; task mutations require an explicit user request.
+in `TASKS.md`. Vikunja is the source of truth for non-trivial workspace work:
+find or create the matching project and task before implementation, keep the
+project description current with scope and overall status, and add task comments
+for progress, decisions, verification, and blockers. Complete tasks only after
+their required work and verification are complete. Never record secrets, tenant
+data, production identifiers, or sensitive command output in Vikunja.
 
 ## Development Commands
 

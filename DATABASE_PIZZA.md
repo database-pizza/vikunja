@@ -47,4 +47,6 @@ This backend only works against a PizzaSQL source build that implements:
 
 This backend is experimental and was validated against a local PizzaSQL engine
 running Vikunja's full migration suite and task/project CRUD through the HTTP
-API. It is not deployed, and the engine changes it depends on are not published.
+API. It is deployed at `https://tasks.database.pizza` through the managed
+PostgreSQL proxy; local source builds remain the integration path for engine
+changes.
